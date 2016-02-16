@@ -557,9 +557,10 @@ def do_log():
 
 submit_db=set([])
 if __name__ == '__main__':
-	print os.path.split(os.path.realpath(__file__))[0]
+	#print os.path.split(os.path.realpath(__file__))[0]
 	while True:
 		print 60*'='
 		do_log()
 		time.sleep(5*60)
-		
+
+
