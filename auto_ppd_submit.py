@@ -1,70 +1,113 @@
-# -*- coding:utf-8 -*-  
+# -*- coding:utf-8 -*-
+# This is a Python3 script.
+# author: wpf999[in]equn.com 
+# release date: 20170920
+# release date: 20200405 , fix 5 bugs  
+
+import sys
+if sys.version_info.major != 3 :
+	print( 'python3 is needed. \npress enter to exit...' )
+	sys.stdin.readline()
+	exit(-1)
+
+
 import os
 import time
-import commands
-import string
-import math
 import xml.dom.minidom
 import platform
-import subprocess
+import urllib.request, urllib.parse, urllib.error
+import http.client
+import logging
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
-def hms_to_sec(str):
+def hms_to_sec(s):
 	#s[0,1]:s[3,4]:s[6,7]
-	hour=string.atoi( str[0:2] )
-	min =string.atoi( str[3:5] )
-	sec =string.atoi( str[6:8] )
-	return 3600*hour+60*min+sec
+	hour=int( s[0:2] )
+	min =int( s[3:5] )
+	sec =int( s[6:8] )
+	return 3600*hour + 60*min + sec
 #end def
 
-def read_log(file):
-	f=open(file)
-	lines=f.readlines()
+def read_log(fah_log):
+	f=open(fah_log, mode='rb')
+	bytes_list=f.readlines()
 	f.close()
-	return lines
+	#print(type(bytes_list), len(bytes_list)) #debug
+	
+	contents=[]
+	for b in bytes_list:
+		contents.append( b.decode( 'UTF-8', errors='ignore') )
+	#print(contents)
+	#print(type(contents), len(contents)) #debug
+	return contents
 #end def
 
 def get_os_info(log_lines):
-	os=log_lines[32].split('OS:')[1].split()
-	if os[0]=='Linux':
-		os_name=os[0]
-	else:
-		os_name=os[0]+' '+os[1]
-	
-	arch=log_lines[33].split('OS Arch:')[1]
+	for line in log_lines:
+		if 'OS:' in line:
+			os=line.split('OS:')[1].split()
+			if os[0]=='Linux':
+				os_name=os[0]
+			else:
+				os_name=os[0]+' '+os[1]
+		
+		if 'OS Arch:' in line:
+			arch=line.split('OS Arch:')[1]
+			break
+			
 	return { 'name':os_name.strip(),  'arch':arch.strip() }
 #end def
 
 def get_gpu_count(log_lines):
-	gpu_count=log_lines[34].split('GPUs:')[1]
-	return string.atoi(gpu_count.strip())
+	for line in log_lines:
+		if 'GPUs:' in line:
+			gpu_count=line.split('GPUs:')[1]
+			return int(gpu_count.strip())
+	return -1
+#end def
+
+def get_gpu_count_v2(log_lines):
+	for index,line in enumerate(log_lines):
+		if 'GPUs:' in line:
+			gpu_count=line.split('GPUs:')[1]
+			return int(gpu_count.strip()), index
+	return -1,-1
 #end def
 
 def get_gpu_list(log_lines):
-	gpu_count=get_gpu_count(log_lines)
-	list=[]
+	gpu_count,index=get_gpu_count_v2(log_lines)
+	if gpu_count<=0 :
+		return []
+	
+	x=[]
 	for i in range(gpu_count):
-		tmp=log_lines[35+i].split('GPU')[1].strip()
-		gpu_name=tmp.split('[')[1].strip(']')
-		list.append(gpu_name)
-	return list
+		tmp=log_lines[index+1+i].split('GPU')[1].strip()
+		#gpu_name=tmp.split('[')[1].strip(']')
+		gpu_name=tmp.split('[')[1].split(']')[0]
+		x.append(gpu_name)
+	return x
 #end def
 
 def get_config(lines):
 	c=len(lines)
+	i_begin=i_end=0
 	for i in range(c-1, 0, -1):
 		if '</config>' in lines[i]:
 			i_end=i
-			break
-	for i in range(i_end,0,-1):
 		if '<config>' in lines[i]:
 			i_begin=i
 			break
-			
+	
+	if i_begin==i_end:
+		raise Exception('can not find <config>')
+	
 	config=lines[i_begin:i_end+1]
 	s=''
 	for i in range(len(config)):
-		config[i]=config[i][len('00:00:00:'):]
-		s=s+config[i]
+		s=s+config[i][len('00:00:00:'):]
+		
+	#print("config:\n"+s)#debug
 	return s
 #end def
 
@@ -74,7 +117,7 @@ def get_user_and_team(lines):
 	root = DOMTree.documentElement
 	u = root.getElementsByTagName('user')[0].getAttribute('v').strip()
 	t = root.getElementsByTagName('team')[0].getAttribute('v').strip()
-	#print u,t
+	#print( u, t )
 	return u,t
 #end def
 
@@ -101,7 +144,7 @@ def get_last_starting_WUxxFSxx(line):
 	
 def get_last_starting_slot(line):
 	slot_id=get_last_starting_WUxxFSxx(line).split('FS')[1]
-	return slot_id,string.atoi(slot_id)
+	return slot_id,int(slot_id)
 #end def
 
 def get_gpu_id_by_slot(slot_id,lines):
@@ -114,24 +157,24 @@ def get_gpu_id_by_slot(slot_id,lines):
 #end def
 
 def get_last_starting_core(lines):
-	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
 			if ':Project:' in line:
-				core =line.split(':Project:')[0].split(WUxxFSxx+':')[1]
+				core = line.split(':Project:')[0].split(WUxxFSxx+':')[1]
 				return core
 	return -1 #some exception
 #end def
 
 def get_last_starting_project(lines):
-	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
 			if ':Project:' in line:
 				tmp = line.split(':Project:')
 				project_num = tmp[1].split()[0]
 				project     = tmp[1].strip()
-				return string.atoi(project_num), project
+				return int(project_num), project
 	return -1 #some exception
 #end def
 
@@ -142,7 +185,7 @@ def get_last_starting_WU_project_and_core(lines):
 			if ':Project:' in line:
 				project_num=line.split(':Project:')[1].split()[0]
 				core       =line.split(':Project:')[0].split(WUxxFSxx+':')[1]
-				return string.atoi(project_num),core
+				return int(project_num),core
 	return -1 #some exception
 #end def
 
@@ -166,9 +209,10 @@ def get_last_starting_WU_id(lines):
 #end def
 
 def get_core_WUxxFSxx(line):
-	wuxx=line.split(':')[3]
-	slot=line.split(':')[4]
-	core=line.split(':')[5]
+	x = line.split(':')
+	wuxx = x[3]
+	slot = x[4]
+	core = x[5]
 	return core,wuxx,slot
 #end def
 
@@ -181,47 +225,66 @@ def get_info_by_id(id,lines):
 			for j in range(i-1,0,-1):
 				if tag in lines[j]:
 					project=lines[j].split(tag)[1].strip()
-					project_num=string.atoi(project.split()[0])
+					project_num= int(project.split()[0])
 					return project_num,core,wuxx,slot,i,j,project
 	return -1
 #end def
 	
-def get_last_starting_WU_time_list(lines):
-	list={}
+def get_last_starting_WU_time_and_steps(lines):
+	x={}
 	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
 	for line in lines:
 		if (WUxxFSxx in line) and ('out of' in line) and ('steps' in line):
 			t,tmp=line.split(':'+WUxxFSxx+':')
-			#print t
-			percent=tmp.split('steps')[1].strip().strip('(').strip(')').strip('%')
-			t=hms_to_sec(t)
-			#print t
-			percent=int(percent)
-			#print percent
-			list[percent]=t
-	return list
+			#print(t) #debug
+			t = hms_to_sec(t)
+			#print(t) #debug
+			step = tmp.split('steps')[1].strip().strip('(').strip(')').strip('%')
+			step = int(step)
+			x[step] = t
+	return x
 #end def
 
-def get_nv_gpu_info():
+def nvapi_detect_clock(pci_bus):
+	
+	buf = os.popen( 'GPU_nvapi_using.exe  ' + pci_bus ).read()
+	print(buf)
+	for line in buf.splitlines():
+		if 'core frequency=' in line:
+			core_f = line.split('=')[1].strip('MHz').strip()
+		if 'mem frequency=' in line:
+			mem_f = line.split('=')[1].strip('MHz').strip()
+	return core_f,mem_f
+#end def
+
+def get_nv_smi():
+
 	util_path={}
 	util_path[0] = r'/usr/bin/nvidia-smi'
-	util_path[1] = str(os.getenv('SYSTEMDRIVE'))+ r'\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe'
+	util_path[1] = str(os.getenv('SYSTEMDRIVE')) + r'\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe'
+	util_path[2] = str(os.getenv('SYSTEMDRIVE')) + r'\Windows\System32\nvidia-smi.exe' 
 	
 	util_find = False
 	
-	for i in util_path.keys():
+	for i in range( 0, len(util_path) ):
 		if os.path.exists( util_path[i] ):
 			util_cmd = util_path[i] 
 			if chr(32) in  util_cmd:
 				util_cmd = '"' + util_cmd+'"'  #because of space characters in the path, we need to plus "" 
-			#print 'i=',i , util_cmd
+			#print('i=',i , util_cmd) #debug
 			util_find = True
 			break
-			
-	if 	util_find == False :
-		print 'NVIDIA driver may be not installed!'
-		return []
-					
+	
+	if util_find == False :
+		raise Exception( 'can not find nvidia-smi! exit...' )
+	else:
+		return util_cmd
+	
+#end def 
+
+def get_nv_gpu_info():
+	util_cmd = get_nv_smi()
+
 	utils_output_xml=os.popen( util_cmd + ' -q -x').read()
 	#print utils_output_xml,len(utils_output_xml)  #debug
 	DOMTree = xml.dom.minidom.parseString(utils_output_xml)
@@ -237,35 +300,47 @@ def get_nv_gpu_info():
 		product_name=gpu.getElementsByTagName('product_name')[0].childNodes[0].data
 		#print product_name
 		uuid = gpu.getElementsByTagName('uuid')[0].childNodes[0].data
-		#print uuid
+		#print( uuid )
 		graphics_clock = gpu.getElementsByTagName('clocks')[0].getElementsByTagName('graphics_clock')[0].childNodes[0].data
 		mem_clock      = gpu.getElementsByTagName('clocks')[0].getElementsByTagName('mem_clock')[0].childNodes[0].data
-		#print graphics_clock,  mem_clock
 		
+		
+		pci_bus    = gpu.getElementsByTagName('pci')[0].getElementsByTagName('pci_bus')[0].childNodes[0].data
+		#print('%15s'%'pci_bus:',pci_bus)
+		#print graphics_clock,  mem_clock
 		pci_gpu_link_info_item = gpu.getElementsByTagName('pci')[0].getElementsByTagName('pci_gpu_link_info')[0]
 		pci_gen    = pci_gpu_link_info_item.getElementsByTagName('pcie_gen')[0].getElementsByTagName('current_link_gen')[0].childNodes[0].data
 		pci_speed = pci_gpu_link_info_item.getElementsByTagName('link_widths')[0].getElementsByTagName('current_link_width')[0].childNodes[0].data
 		#print pci_gen, pci_speed
 		
-		pid_list={}
+		map_pid_pname={}
 		process_info_list = gpu.getElementsByTagName('processes')[0].getElementsByTagName('process_info') 
 		#print 'len(process_info_list)', len(process_info_list)#[0].childNodes[0].data
 		for process_info in process_info_list:
 			pid = process_info.getElementsByTagName('pid')[0].childNodes[0].data
 			pid = int(pid)
 			process_name = process_info.getElementsByTagName('process_name')[0].childNodes[0].data
-			pid_list[pid]= process_name
+			map_pid_pname[pid]= process_name
 		#end for
+		
+		#n/a处理
+		if  ( graphics_clock=='N/A' ) or ( mem_clock=='N/A' ):
+			#graphics_clock,mem_clock = nvapi_detect_clock(pci_bus)
+			raise Exception('can not detect GPU clock')
+			
+		#end if
 		
 		ginfo = {	'driver':driver_version_str,
 					'uuid':uuid,
+					'pci_bus':pci_bus,
 					'name':product_name,
 					'graphics_clock':graphics_clock,
 					'mem_clock':mem_clock,
 					'pci_gen':pci_gen,
 					'pci_speed':pci_speed,
-					'pid_list':pid_list
+					'pid_list':map_pid_pname
 				}
+		
 		gpu_list.append(ginfo)
 	#end for 
 	
@@ -274,13 +349,83 @@ def get_nv_gpu_info():
 #end def
 
 def get_gpu_info():
-	'only for nvidia GPU now!'
+	#'only for nvidia GPU now!'
 	return get_nv_gpu_info()
 #end def
 
-def form_para_table():
+def get_html():
+	username='wpf'
+	team='3213'
 
-	os_k_v={'Windows XP'            	:'1',
+	#post_body={}
+	#post_body['username']=username
+	#post_body['team']=team
+	#params = urllib.parse.urlencode(post_body)
+	#cookie=""
+	#header={"Content-type": "application/x-www-form-urlencoded",   "Cookie": cookie }
+	#html=""  #html needs a initial value 
+	# conn = http.client.HTTPSConnection('fah.manho.org')
+	# conn.request("POST", "/gpu_statistics.php?a=add", params , header)
+	# resp = conn.getresponse()
+	# if resp.status!=200 :
+		# print('===========HTTP response code is not 200 !===========')
+		# return ""
+	# resp_data = resp.read()
+	# html= resp_data.decode( 'utf-8' )
+	# conn.close()
+	#print(html)
+
+	cookie='username='+username+'; team='+team
+	header={"Content-type": "application/x-www-form-urlencoded",   "Cookie": cookie }
+	post_body={}
+	params = urllib.parse.urlencode(post_body)
+
+	html=''
+	try:
+		conn = http.client.HTTPSConnection('fah.manho.org')
+		conn.request('POST', '/gpu_statistics.php?a=add', params , header)
+		resp = conn.getresponse()
+		if resp.status!=200 :
+			print('===========HTTP response code is not 200 !===========')
+			return ''
+			
+		resp_data = resp.read()
+		html= resp_data.decode( 'utf-8' )
+		#print(html) #debug
+		conn.close()
+	except:
+		t,v,_ = sys.exc_info()
+		print(t,v)
+		print('Network exception: can not visit fah.manho.org')
+		return ''
+		
+	return html
+
+#end def
+
+def get_manho_gpu_table(html):
+
+	html_select_gpu = html.split('<select name="gpuid">')[-1].split('</select>')[0]
+
+	op_list = html_select_gpu.split('</option>')
+	#print len(op_list)
+	op_list.pop()       #remove the last item, it is a ""
+	#print len(op_list)
+	#print op_list
+
+	map_gpuname_id = {}
+	for hh in op_list:
+		gpuname     = hh.split('>')[1].strip().replace('\x20','').upper()
+		manho_gpuid = hh.split('>')[0].split('=')[1].strip().strip('"')
+		map_gpuname_id[gpuname] = manho_gpuid
+
+	#print( map_gpuname_id ) #debug
+	return map_gpuname_id 
+#end def
+
+def get_manho_os_table(html):
+	#html may be checked in the future
+	return {'Windows XP'            	:'1',
 			'Windows Vista'         	:'2', 
 			'Windows Server 2008'   	:'2',
 			'Windows 7'             	:'3', 
@@ -291,35 +436,30 @@ def form_para_table():
 			'Windows 10'            	:'6',
 			'Linux'                 	:'7'}
 
-	html = '<option value="95">Radeon R9 Fury X</option><option value="97">Radeon R9 Fury Nano</option><option value="96">Radeon R9 Fury</option><option value="98">Radeon R9 390X</option><option value="99">Radeon R9 390</option><option value="100">Radeon R9 380</option><option value="101">Radeon R9 370</option><option value="103">Radeon R9 295X2</option><option value="104">Radeon R9 290X</option><option value="105">Radeon R9 290</option><option value="107">Radeon R9 285</option><option value="106">Radeon R9 280X</option><option value="108">Radeon R9 280</option><option value="109">Radeon R9 270X</option><option value="110">Radeon R9 270</option><option value="102">Radeon R7 360</option><option value="111">Radeon R7 265</option><option value="112">Radeon R7 260X</option><option value="113">Radeon R7 260</option><option value="114">Radeon R7 250X</option><option value="115">Radeon R7 250</option><option value="116">Radeon R7 240</option><option value="117">Radeon R5 230</option><option value="118">Radeon HD 7990</option><option value="119">Radeon HD 7970 GE</option><option value="120">Radeon HD 7970</option><option value="121">Radeon HD 7950 Boost</option><option value="122">Radeon HD 7950</option><option value="123">Radeon HD 7870 XT (1536SP</option><option value="124">Radeon HD 7870</option><option value="125">Radeon HD 7850</option><option value="126">Radeon HD 7790</option><option value="127">Radeon HD 7770</option><option value="128">Radeon HD 7750</option><option value="129">Radeon HD 7730</option><option value="6">GeForce GTX TITAN Z</option><option value="1">GeForce GTX TITAN X</option><option value="7">GeForce GTX TITAN BLACK</option><option value="8">GeForce GTX TITAN</option><option value="58">GeForce GTX 980M</option><option value="2">GeForce GTX 980 Ti</option><option value="3">GeForce GTX 980</option><option value="59">GeForce GTX 970M</option><option value="4">GeForce GTX 970</option><option value="60">GeForce GTX 965M</option><option value="61">GeForce GTX 960M</option><option value="5">GeForce GTX 960</option><option value="62">GeForce GTX 950M</option><option value="130">GeForce GTX 950</option><option value="66">GeForce GTX 880M</option><option value="67">GeForce GTX 870M</option><option value="68">GeForce GTX 860M</option><option value="69">GeForce GTX 850M</option><option value="74">GeForce GTX 780M</option><option value="9">GeForce GTX 780 Ti</option><option value="10">GeForce GTX 780</option><option value="75">GeForce GTX 770M</option><option value="11">GeForce GTX 770</option><option value="76">GeForce GTX 760M</option><option value="12">GeForce GTX 760 Ti</option><option value="13">GeForce GTX 760</option><option value="14">GeForce GTX 750 Ti</option><option value="15">GeForce GTX 750</option><option value="16">GeForce GTX 745</option><option value="21">GeForce GTX 690</option><option value="84">GeForce GTX 680MX</option><option value="85">GeForce GTX 680M</option><option value="22">GeForce GTX 680</option><option value="86">GeForce GTX 675MX</option><option value="87">GeForce GTX 675M</option><option value="88">GeForce GTX 670MX</option><option value="89">GeForce GTX 670M</option><option value="23">GeForce GTX 670</option><option value="90">GeForce GTX 660M</option><option value="24">GeForce GTX 660 Ti</option><option value="25">GeForce GTX 660</option><option value="26">GeForce GTX 650 Ti</option><option value="27">GeForce GTX 650</option><option value="28">GeForce GTX 645</option><option value="35">GeForce GTX 590</option><option value="36">GeForce GTX 580</option><option value="37">GeForce GTX 570</option><option value="38">GeForce GTX 560 Ti</option><option value="40">GeForce GTX 560 SE</option><option value="39">GeForce GTX 560</option><option value="42">GeForce GTX 555</option><option value="41">GeForce GTX 550 Ti</option><option value="47">GeForce GTX 480</option><option value="48">GeForce GTX 470</option><option value="49">GeForce GTX 465</option><option value="51">GeForce GTX 460 SE V2</option><option value="52">GeForce GTX 460 SE</option><option value="50">GeForce GTX 460</option><option value="53">GeForce GTS 450</option><option value="63">GeForce GT 940M</option><option value="64">GeForce GT 930M</option><option value="65">GeForce GT 920M</option><option value="70">GeForce GT 840M</option><option value="71">GeForce GT 830M</option><option value="72">GeForce GT 820M</option><option value="73">GeForce GT 810M</option><option value="77">GeForce GT 755M</option><option value="78">GeForce GT 750M</option><option value="79">GeForce GT 745M</option><option value="80">GeForce GT 740M</option><option value="17">GeForce GT 740</option><option value="81">GeForce GT 735M</option><option value="82">GeForce GT 730M</option><option value="18">GeForce GT 730</option><option value="83">GeForce GT 720M</option><option value="19">GeForce GT 720</option><option value="20">GeForce GT 710</option><option value="91">GeForce GT 650M</option><option value="92">GeForce GT 645M</option><option value="29">GeForce GT 645</option><option value="93">GeForce GT 640M LE</option><option value="94">GeForce GT 640M</option><option value="30">GeForce GT 640</option><option value="31">GeForce GT 630</option><option value="32">GeForce GT 620</option><option value="33">GeForce GT 610</option><option value="34">GeForce GT 605</option><option value="43">GeForce GT 545</option><option value="44">GeForce GT 530</option><option value="45">GeForce GT 520</option><option value="46">GeForce GT 510</option><option value="54">GeForce GT 440</option><option value="55">GeForce GT 430</option><option value="56">GeForce GT 420</option><option value="57">GeForce GT 405</option>'
-	kv_list=html.split('</option>')
-	#print len(kv_list)
-	kv_list.pop()       #remove last item, it is a ""
-	#print len(kv_list)
-	#print kv_list
-	gpu_k_v={}
-	for kv in kv_list:
-		key   = kv.split('>')[1].strip()
-		value = kv.split('>')[0].split('=')[1].strip().strip('"')
-		gpu_k_v[key]=value
-	#print gpu_k_v
-	return os_k_v , gpu_k_v 
 #end def
 
-def build_form_para(user,team, core,project_num,tpf_min,tpf_sec,gpu_info,os_info):
+def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 	
-	os_key_value, gpu_key_value = form_para_table()
+	html=get_html()
+	if html=='' :
+		return None
 	
-	if gpu_info['name'] in gpu_key_value.keys():
-		gpu_id = gpu_key_value[gpu_info['name']]  
+	gpu_key_value = get_manho_gpu_table(html)
+	os_key_value  = get_manho_os_table(html)
+
+	gpuname=gpu_info['name']   # gpu_info['name'] is official GPU name
+	gpuname=gpuname.replace('\x20','').upper() # delete space char for 1660Ti ~ 1660 Ti
+	
+	if gpuname in (gpu_key_value.keys()):
+		gpu_id = gpu_key_value[gpuname]  
 	else:
-		print 'can not find GPU id, exit...'
-		exit(-1)
+		raise Exception( 'can not find your GPU id on fah.manho.org, exit...' )
 		
-	core_ver = core.strip('0x')
+		
+	core_ver    = core.strip('0x')
 	project_num = str(project_num)
-	tpf_min = str(tpf_min)
-	tpf_sec = str(tpf_sec)
+	tpf_min     = str(tpf_min)
+	tpf_sec     = str(tpf_sec)
 	
 	driver         = gpu_info['driver']
 	graphics_clock = gpu_info['graphics_clock'].strip('MHz').strip()
@@ -337,16 +477,19 @@ def build_form_para(user,team, core,project_num,tpf_min,tpf_sec,gpu_info,os_info
 	if pci_speed=='N/A':
 		pci_speed='16'
 		
-	if '.' not in pci_gen:
-		pci_gen    = pci_gen+'.0'
+	if '1'==pci_gen:
+		pci_gen    = '1.1'
+	if '2'==pci_gen:
+		pci_gen    = '2.0'
+	if '3'==pci_gen:
+		pci_gen    = '3.0'
 	
-	if os_info['name'] in os_key_value.keys():
+	if os_info['name'] in (os_key_value.keys()):
 		os_id=os_key_value[ os_info['name'] ]
 	else:
-		print 'can not find OS id, exit...'
-		exit(-1)
+		raise Exception( 'can not find your OS id on fah.manho.org, exit...' )
 		
-	
+
 	if os_info['arch'] == 'AMD64':
 		os_arch_num='64'
 	else:
@@ -354,61 +497,65 @@ def build_form_para(user,team, core,project_num,tpf_min,tpf_sec,gpu_info,os_info
 	
 	return {'user':user,
 			'team':team,
-			'gpu_id':gpu_id,
-			'core_ver':core_ver,
-			'project_num':project_num,
-			'tpf_min':tpf_min,
-			'tpf_sec':tpf_sec,
+			'gpuid':gpu_id,
+			'corever':core_ver,
+			'projectnum':project_num,
+			'tpfmin':tpf_min,
+			'tpfsec':tpf_sec,
 			'driver':driver,
-			'graphics_clock':graphics_clock,
-			'mem_clock':mem_clock,
-			'pci_gen':pci_gen,
-			'pci_speed':pci_speed,
-			'os_id':os_id,
-			'os_arch_num':os_arch_num		
-	}
+			'gpucoreclock':graphics_clock,
+			'gpumemclock':mem_clock,
+			'pciever':pci_gen,
+			'pciespeed':pci_speed,
+			'os':os_id,
+			'arch':os_arch_num
+			}
+
 #end def
 
-def post_data(form_para):
-	user			= form_para['user']
-	team			= form_para['team']
-	gpu_id			= form_para['gpu_id']
-	core_ver		= form_para['core_ver']
-	project_num		= form_para['project_num']
-	tpf_min			= form_para['tpf_min']
-	tpf_sec			= form_para['tpf_sec']
-	driver			= form_para['driver']
-	graphics_clock	= form_para['graphics_clock']
-	mem_clock		= form_para['mem_clock']
-	pci_gen			= form_para['pci_gen']
-	pci_speed		= form_para['pci_speed']
-	os_id			= form_para['os_id']
-	os_arch_num 	= form_para['os_arch_num']
+def post_form( form_para ):
+	if form_para==None:
+		return -2
+
+	user = form_para['user']
+	team = form_para['team']
+
+	post_body=form_para
+	post_body['submit'] = ''
+	post_body['auto']   = '1'
 	
-	post_body=''
-	post_body+='gpuid='+gpu_id+'&corever='+core_ver+'&projectnum='+project_num
-	post_body+='&tpfmin='+tpf_min+'&tpfsec='+tpf_sec
-	post_body+='&driver='+driver +'&gpucoreclock='+graphics_clock+'&gpumemclock='+mem_clock+'&pciever='+pci_gen+'&pciespeed='+pci_speed
-	#post_body+='&driver=000.00&gpucoreclock=0000&gpumemclock=0000&pciever=3.0&pciespeed=16'
-	#post_body+='&driver=UNKNOWN&gpucoreclock=UNKNOWN&gpumemclock=UNKNOWN&pciever=UNKNOWN&pciespeed=UNKNOWN'
-	post_body+='&os='+os_id+'&arch='+os_arch_num+'&submit=&auto=1'
+	params = urllib.parse.urlencode(post_body)
+
+	cookie = 'username='+user+'; team='+team
+	header = {'Content-type': 'application/x-www-form-urlencoded',   'Cookie': cookie }
 	
-	cookie='username='+user+'; team='+team
+	html=''  #html needs a initial value 
+	try:
+		conn = http.client.HTTPSConnection('fah.manho.org')
+		conn.request('POST', '/gpu_statistics.php?a=add', params , header)
+		resp = conn.getresponse()
+		if resp.status!=200 :
+			print('===========HTTP response code is not 200 !===========')
+			return -1
 	
-	#print 'post_body:',post_body #debug
-	#return #debug
-	cmd='curl -i -b "'+cookie+'"  --data-binary "'+post_body+'" http://fah.manho.org/gpu_statistics.php?a=add'
-	cmd=cmd+' 2>'+platform.DEV_NULL
+		resp_data = resp.read()
+		html= resp_data.decode( 'utf-8' )
+		conn.close()
+	except:
+		t,v,_ = sys.exc_info()
+		print(t,v)
+		print('网络异常，本次提交失败。下一次继续重试...')
+		return -2
 	
-	stdout=os.popen(cmd)
-	http_response=stdout.read().decode('utf8')
-	stdout.close()
-	#print http_response #debug
-	if ('HTTP/1.1 200 OK' in http_response)  and ( u'您输入的数据已经成功提交' in http_response):
-		print '===========Submit  OK ! ==========='
+	#print( html ) #debug
+	if  ( '您输入的数据已经成功提交' in html) or ('未找到符合用户名的记录' in html):
+		logging.info('===========Submit  OK ! ===========')
+		logging.info( post_body )
+		print('===========Submit  OK ! ===========')
 		return 0
 	else:
-		print '===========Submit Error!==========='
+		print(html)
+		print('===========Submit Error!===========')
 		return -1
 	
 #end def
@@ -418,149 +565,169 @@ def do_slot_log(lines,  user,team, os_info):
 	global submit_db
 	
 	slot, _ = get_last_starting_slot(lines[0])
-	print '%15s'%'Slot ID:',slot
+	print('%15s'%'Slot ID:',slot)
 	
 	core = get_last_starting_core(lines)
 	
 	project_num, project = get_last_starting_project(lines)
 	
-	print '%15s'%'Core:',core
-	print '%15s'%'Project:',project_num
-	print '%15s'%'Project(RCG):',project 
+	print('%15s'%'Core:',core)
+	print('%15s'%'Project:',project_num)
+	print('%15s'%'Project(RCG):',project) 
 	
 	#wu_id=get_last_starting_WU_id(lines)
 	#print get_info_by_id(wu_id,lines)
-
-
-	list=get_last_starting_WU_time_list(lines)
-	#print 'time list len:',len(list)
-	if len(list)==0 :
-		print 'no data now! skip...'
-		return -1
-
-	min_per=min(list.keys())
-	max_per=max(list.keys())
-	print '%15s'%'progress:',[min_per,max_per]
-	t_min=list[min_per]
-	t_max=list[max_per]
-	print '%15s'%'running sec:',[t_min,t_max]
 	
-	#异常
-	if(len(list)<3): 
-		print 'data is not enough! skip...'
+	map_time_steps = get_last_starting_WU_time_and_steps(lines)
+	#print( 'map_time_steps len:',len(map_time_steps) )  #debug
+
+	if len(map_time_steps) < 5 : 
+		print('data is not enough! skip...')
 		return -1
+	
+	step_min = min(map_time_steps.keys())
+	step_max = max(map_time_steps.keys())
+	print('%15s'%'progress:', [step_min,step_max] )
+
+	t_min = map_time_steps[step_min]
+	t_max = map_time_steps[step_max]
+	print('%15s'%'running sec:', [t_min,t_max] )
 
 	#异常
-	if (t_max-t_min) < 0 :
-		t_max=t_max+24*3600
+	if (t_max-t_min) < 0 : # next day
+		t_max = t_max + 24*3600
 	
 
-	tpf = 1.0*(t_max-t_min)/(max_per-min_per)
-	#tpf = int(math.ceil(tpf))
+	tpf = 1.0*(t_max-t_min)/(step_max-step_min)
 	tpf = int ( round(tpf) )
 	#print 'TPF=',tpf,'sec'
-	tpf_min = tpf/60
+	tpf_min = tpf//60
 	tpf_sec = tpf%60
-	print '%15s'%'TPF:',tpf_min,'min',tpf_sec,'sec'
+	print('%15s'%'TPF:',tpf_min,'min',tpf_sec,'sec')
 
-
-	#gpu_id = get_gpu_id_by_slot(slot,lines)
-	#print '%15s'%'GPU ID:',gpu_id
-	#gpu=gpu_list[gpu_id]
-	#print '%15s'%'GPU:',gpu
 
 	gpu_info_list = get_gpu_info()
 
-	if len(gpu_info_list)<1:
-		print 'There is no GPU in your computer!'
+	if len(gpu_info_list) < 1:
+		print('There is no GPU in your computer!')
 		return -1
 
-	if len(gpu_info_list) ==1 :     #only cope with one GPU
+	if len(gpu_info_list) == 1 :     #only cope with one GPU
 		gpu_info = gpu_info_list[0]
 	else:
-		'需要找到本slot对应的GPU'
-		'按PID寻找GPU'
+		#'需要找到本slot对应的GPU'
+		#'按PID寻找GPU'
 		core_pid = get_last_starting_pid(lines)
 		gpu_info = None
 	
 		for ginfo in gpu_info_list:
 			#print 'keys:',ginfo['pid_list'].keys()
-			if core_pid in ginfo['pid_list'].keys():
+			if core_pid in (ginfo['pid_list'].keys()):
 				gpu_info = ginfo
 				#'找到了！'
 
-		if gpu_info == None :
-			print 'Not find GPU run on process #'+str(core_pid)
+		if gpu_info is None :
+			print('Can not find GPU running on process #'+str(core_pid))
 			return -1
 	#end if
 	
-	print '%15s'%'GPU:'       ,gpu_info['name']
-	print '%15s'%'GPU Driver:',gpu_info['driver']
-	print '%15s'%'GPU Clock:' ,gpu_info['graphics_clock']
-	print '%15s'%'GMem Clock:',gpu_info['mem_clock']
-	print '%15s'%'pci_gen:'   ,gpu_info['pci_gen']
-	print '%15s'%'pci_speed:' ,gpu_info['pci_speed']
+	print('%15s'%'GPU:'       ,gpu_info['name'])
+	print('%15s'%'GPU Driver:',gpu_info['driver'])
+	print('%15s'%'GPU Clock:' ,gpu_info['graphics_clock'])
+	print('%15s'%'GMem Clock:',gpu_info['mem_clock'])
+	print('%15s'%'pci_gen:'   ,gpu_info['pci_gen'])
+	print('%15s'%'pci_speed:' ,gpu_info['pci_speed'])
+	print('%15s'%'pci_bus:'   ,gpu_info['pci_bus'] )
+	sys.stdout.flush()
 
 	if project in submit_db:
-		return 
-	
-	form_para = build_form_para(user,team,core,project_num,tpf_min,tpf_sec ,gpu_info, os_info)
-	ret=post_data(form_para) #send to fah.manho.org
-	if ret==0 : #submit OK!
-		submit_db.add(project)
-	
-	#print '%15s'%'submit_db:', submit_db
-	print '%15s'%'submit_db:', (project in submit_db)
+		print( 'No results need to be submitted. Sleeping...' )
+		return 0
+	else:
+		formXXX = fill_form(user,team,core,project_num,tpf_min,tpf_sec ,gpu_info, os_info)
+		ret     = post_form( formXXX ) #send to fah.manho.org
+		if ret==0 : #submit OK!
+			submit_db.add(project)
+		
+		#print( '%15s'%'submit_db:', submit_db)
+		print('%15s'%'submit_db:', (project in submit_db))
+		return 0
 
 #end def
 
+def do_log(filename):
+	global FAH_GPU_CORES
 
-def do_log():
-	lines =read_log('log.txt')
+	lines = read_log(filename)
 
-	user,team = get_user_and_team(lines)
-	print '%15s'%'User:',user
-	print '%15s'%'Team:',team
+	user,team  = get_user_and_team(lines)
+	n_slots    = get_num_of_slots(lines)
 
-	num_of_slots = get_num_of_slots(lines)
-	print '%15s'%'Total Slots:',num_of_slots
+	n_GPUs     = get_gpu_count(lines)
+	if n_GPUs <= 0: 
+		raise Exception('No GPU in your system! exit...')
 
-	print '%15s'%'Total GPUs:',get_gpu_count(lines)
-
-	print '%15s'%'GPU List:',get_gpu_list(lines)
-
-	os_info = get_os_info(lines)
-	print '%15s'%'OS:'     ,os_info['name']
-	print '%15s'%'OS Arch:',os_info['arch']
-
+	gpu_list   = get_gpu_list(lines)
+	os_info    = get_os_info(lines)
 	index_list = get_starting_index(lines)
-	print '%15s'%'index_list:',index_list
+
+	print('%15s'%'User:'       , user )
+	print('%15s'%'Team:'       , team )
+	print('%15s'%'Total Slots:', n_slots )
+	print('%15s'%'Total GPUs:' , n_GPUs )
+	print('%15s'%'GPU List:'   , gpu_list )
+	print('%15s'%'OS:'         , os_info['name'] )
+	print('%15s'%'OS Arch:'    , os_info['arch'] )
+	print('%15s'%'index_list:' , index_list )
 
 	s=set([])
+	
 	for index in index_list:
-		#skip cpu slot
 		core = get_last_starting_core(lines[index:])
-		if core not in ('0x15','0x16','0x17','0x18','0x19','0x20','0x21','0x22') :
-			continue
+		if core not in FAH_GPU_CORES :
+			continue #skip cpu slot
 		
 		slot, _ = get_last_starting_slot(lines[index])
 		if slot in s:
 			continue #only watch the last task for each slot
 		else:
 			s.add(slot)
-			print 30*'='
-			print '%15s'%'index:',index
+			print('='*60)
+			print('%15s'%'index:', index )
 			do_slot_log(lines[index:],user,team,os_info)
 #end def
 
 # ##################################################################################################
+FAH_GPU_CORES = ('0x15','0x16','0x17','0x18','0x19','0x20','0x21','0x22')
+submit_db = set([])
 
-submit_db=set([])
 if __name__ == '__main__':
-	#print os.path.split(os.path.realpath(__file__))[0]
-	while True:
-		print 60*'='
-		do_log()
-		time.sleep(5*60)
+	FAH_LOG_FILE = 'log.txt'
+	try:
+		logging.basicConfig(filename='auto_ppd_submit.log',  level=logging.DEBUG,  format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s' )
+		print('nvidia-smi:' , get_nv_smi() )
+		print('current dir:', os.getcwd() )
+		if not ( os.path.exists( FAH_LOG_FILE ) and os.path.isfile( FAH_LOG_FILE ) ):
+			print('#'*60)
+			print('')
+			print('can not find folding@home log file!')
+			print('please put auto_ppd_submit.py in folding@home work dir.' )
+			print('')
+			print('#'*60)
+			raise Exception('no log file')
 
-
+		while True:
+			print('-'*80)
+			do_log( FAH_LOG_FILE )
+			print(time.asctime( time.localtime(time.time()) ))
+			print('-'*80)
+			print('\n\n')
+			sys.stdout.flush()
+			time.sleep(60)
+	except:
+		t,v,_ = sys.exc_info()
+		print(t,v)
+		#os.system("pause")
+		print( 'press enter to exit...' )
+		sys.stdin.readline()
+		exit(-1)
