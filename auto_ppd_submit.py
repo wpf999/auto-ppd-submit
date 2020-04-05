@@ -415,9 +415,9 @@ def get_manho_gpu_table(html):
 
 	map_gpuname_id = {}
 	for hh in op_list:
-		gpuname     = hh.split('>')[1].strip().replace('\x20','').upper()
-		manho_gpuid = hh.split('>')[0].split('=')[1].strip().strip('"')
-		map_gpuname_id[gpuname] = manho_gpuid
+		gpuname = hh.split('>')[1].strip().replace('\x20','').upper()
+		gpuid   = hh.split('>')[0].split('=')[1].strip().strip('"')
+		map_gpuname_id[gpuname] = gpuid
 
 	#print( map_gpuname_id ) #debug
 	return map_gpuname_id 
@@ -444,14 +444,14 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 	if html=='' :
 		return None
 	
-	gpu_key_value = get_manho_gpu_table(html)
-	os_key_value  = get_manho_os_table(html)
+	gpu_table = get_manho_gpu_table(html)
+	os_table  = get_manho_os_table(html)
 
 	gpuname=gpu_info['name']   # gpu_info['name'] is official GPU name
 	gpuname=gpuname.replace('\x20','').upper() # delete space char for 1660Ti ~ 1660 Ti
 	
-	if gpuname in (gpu_key_value.keys()):
-		gpu_id = gpu_key_value[gpuname]  
+	if gpuname in gpu_table.keys():
+		gpuid = gpu_table[gpuname]
 	else:
 		raise Exception( 'can not find your GPU id on fah.manho.org, exit...' )
 		
@@ -484,8 +484,8 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 	if '3'==pci_gen:
 		pci_gen    = '3.0'
 	
-	if os_info['name'] in (os_key_value.keys()):
-		os_id=os_key_value[ os_info['name'] ]
+	if os_info['name'] in os_table.keys():
+		os_id=os_table[ os_info['name'] ]
 	else:
 		raise Exception( 'can not find your OS id on fah.manho.org, exit...' )
 		
@@ -497,7 +497,7 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 	
 	return {'user':user,
 			'team':team,
-			'gpuid':gpu_id,
+			'gpuid':gpuid,
 			'corever':core_ver,
 			'projectnum':project_num,
 			'tpfmin':tpf_min,
