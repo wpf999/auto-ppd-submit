@@ -268,17 +268,18 @@ def get_nv_smi():
 	
 	for i in range( 0, len(util_path) ):
 		if os.path.exists( util_path[i] ):
-			util_cmd = util_path[i] 
-			if chr(32) in  util_cmd:
-				util_cmd = '"' + util_cmd+'"'  #because of space characters in the path, we need to plus "" 
-			#print('i=',i , util_cmd) #debug
+			util_cmd = util_path[i]
 			util_find = True
 			break
 	
-	if util_find == False :
-		raise Exception( 'can not find nvidia-smi! exit...' )
-	else:
+	if util_find :
+		#because of space characters in the path, we need to plus "" 
+		if chr(0x20) in util_cmd:
+			util_cmd = '"' + util_cmd+'"'  
+
 		return util_cmd
+	else:
+		raise Exception( 'can not find nvidia-smi! exit...' )
 	
 #end def 
 
@@ -345,7 +346,7 @@ def get_nv_gpu_info():
 	#end for 
 	
 	#print gpu_list
-	return 	gpu_list
+	return gpu_list
 #end def
 
 def get_gpu_info():
@@ -565,12 +566,10 @@ def do_slot_log(lines,  user,team, os_info):
 	global submit_db
 	
 	slot, _ = get_last_starting_slot(lines[0])
-	print('%15s'%'Slot ID:',slot)
-	
 	core = get_last_starting_core(lines)
-	
 	project_num, project = get_last_starting_project(lines)
 	
+	print('%15s'%'Slot ID:',slot)
 	print('%15s'%'Core:',core)
 	print('%15s'%'Project:',project_num)
 	print('%15s'%'Project(RCG):',project) 
@@ -587,22 +586,20 @@ def do_slot_log(lines,  user,team, os_info):
 	
 	step_min = min(map_time_steps.keys())
 	step_max = max(map_time_steps.keys())
-	print('%15s'%'progress:', [step_min,step_max] )
-
 	t_min = map_time_steps[step_min]
 	t_max = map_time_steps[step_max]
-	print('%15s'%'running sec:', [t_min,t_max] )
-
+	
 	#异常
 	if (t_max-t_min) < 0 : # next day
 		t_max = t_max + 24*3600
-	
 
 	tpf = 1.0*(t_max-t_min)/(step_max-step_min)
 	tpf = int ( round(tpf) )
-	#print 'TPF=',tpf,'sec'
 	tpf_min = tpf//60
 	tpf_sec = tpf%60
+
+	print('%15s'%'progress:'   , [step_min,step_max] )
+	print('%15s'%'running sec:', [t_min,t_max] )
 	print('%15s'%'TPF:',tpf_min,'min',tpf_sec,'sec')
 
 
@@ -621,8 +618,8 @@ def do_slot_log(lines,  user,team, os_info):
 		gpu_info = None
 	
 		for ginfo in gpu_info_list:
-			#print 'keys:',ginfo['pid_list'].keys()
-			if core_pid in (ginfo['pid_list'].keys()):
+			#print( 'keys:',ginfo['pid_list'].keys() ) #debug
+			if core_pid in ginfo['pid_list'].keys() :
 				gpu_info = ginfo
 				#'找到了！'
 
@@ -631,13 +628,13 @@ def do_slot_log(lines,  user,team, os_info):
 			return -1
 	#end if
 	
-	print('%15s'%'GPU:'       ,gpu_info['name'])
-	print('%15s'%'GPU Driver:',gpu_info['driver'])
-	print('%15s'%'GPU Clock:' ,gpu_info['graphics_clock'])
-	print('%15s'%'GMem Clock:',gpu_info['mem_clock'])
-	print('%15s'%'pci_gen:'   ,gpu_info['pci_gen'])
-	print('%15s'%'pci_speed:' ,gpu_info['pci_speed'])
-	print('%15s'%'pci_bus:'   ,gpu_info['pci_bus'] )
+	print('%15s'%'GPU:'       , gpu_info['name'])
+	print('%15s'%'GPU Driver:', gpu_info['driver'])
+	print('%15s'%'GPU Clock:' , gpu_info['graphics_clock'])
+	print('%15s'%'GMem Clock:', gpu_info['mem_clock'])
+	print('%15s'%'pci_gen:'   , gpu_info['pci_gen'])
+	print('%15s'%'pci_speed:' , gpu_info['pci_speed'])
+	print('%15s'%'pci_bus:'   , gpu_info['pci_bus'] )
 	sys.stdout.flush()
 
 	if project in submit_db:
