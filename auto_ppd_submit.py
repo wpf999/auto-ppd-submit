@@ -704,8 +704,12 @@ submit_db = set([])
 if __name__ == '__main__':
 	FAH_LOG_FILE = 'log.txt'
 	try:
-		logging.basicConfig(filename='auto_ppd_submit.log',  level=logging.DEBUG,  format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s' )
+		
 		print('nvidia-smi:' , get_nv_smi() )
+		print('my name:',__file__)
+		pwd = os.path.split(os.path.realpath(__file__))[0]
+		print('pwd:',pwd)
+		os.chdir(pwd)
 		print('current dir:', os.getcwd() )
 		if not ( os.path.exists( FAH_LOG_FILE ) and os.path.isfile( FAH_LOG_FILE ) ):
 			print('#'*60)
@@ -715,7 +719,9 @@ if __name__ == '__main__':
 			print('')
 			print('#'*60)
 			raise Exception('no log file')
-
+		
+		logging.basicConfig(filename='auto_ppd_submit.log',  level=logging.DEBUG,  format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s' )
+		
 		while True:
 			print('-'*80)
 			do_log( FAH_LOG_FILE )
