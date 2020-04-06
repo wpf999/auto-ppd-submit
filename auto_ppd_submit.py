@@ -470,9 +470,9 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 	gpuname=gpu_info['name']   # gpu_info['name'] is an official GPU name
 	gpuname=gpuname.replace('\x20','').upper() # delete space char for 1660Ti ~ 1660 Ti
 	
-	#手动处理特殊情况 
-	if gpuname.endswith('SUPER') :
-		gpuname = gpuname.replace('SUPER','S')   #manho's GPU name is not an official name 
+	# #手动处理特殊情况 
+	# if gpuname.endswith('SUPER') :
+	# 	gpuname = gpuname.replace('SUPER','S')   #manho's GPU name is not an official name 
 
 	if gpuname in gpu_table.keys():
 		gpuid = gpu_table[gpuname]
