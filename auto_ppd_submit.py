@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # This is a Python3 script.
 # author: wpf999[in]equn.com 
+# release date: 20160216
 # release date: 20170920
 # release date: 20200405 , fix 5 bugs  
 
@@ -81,7 +82,7 @@ def get_gpu_list(log_lines):
 		return []
 	
 	x=[]
-	for i in range(gpu_count):
+	for i in range( 0, gpu_count ):
 		tmp=log_lines[index+1+i].split('GPU')[1].strip()
 		#gpu_name=tmp.split('[')[1].strip(']')
 		gpu_name=tmp.split('[')[1].split(']')[0]
@@ -104,8 +105,8 @@ def get_config(lines):
 	
 	config=lines[i_begin:i_end+1]
 	s=''
-	for i in range(len(config)):
-		s=s+config[i][len('00:00:00:'):]
+	for i in range( 0, len(config) ):
+		s = s + config[i][len('00:00:00:'):]
 		
 	#print("config:\n"+s)#debug
 	return s
@@ -125,8 +126,8 @@ def get_num_of_slots(lines):
 	config_xml = get_config(lines)
 	DOMTree = xml.dom.minidom.parseString(config_xml)
 	root = DOMTree.documentElement
-	num_of_slots = len(root.getElementsByTagName('slot'))
-	return num_of_slots
+	n_slots = len(root.getElementsByTagName('slot'))
+	return n_slots
 #end def
 	
 def get_starting_index(log_lines):
@@ -149,7 +150,8 @@ def get_last_starting_slot(line):
 
 def get_gpu_id_by_slot(slot_id,lines):
 	tag='Enabled folding slot '+slot_id
-	for i in range(len(lines)-1,0,-1):
+	c = len(lines)
+	for i in range( c-1, 0, -1 ):
 		if (tag in lines[i]) and ('gpu:' in lines[i]):
 			gpu_id=lines[i].split(tag)[1].split('gpu:')[1].split(':')[0]
 			return int(gpu_id)
@@ -235,11 +237,11 @@ def get_last_starting_WU_time_and_steps(lines):
 	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
 	for line in lines:
 		if (WUxxFSxx in line) and ('out of' in line) and ('steps' in line):
-			t,tmp=line.split(':'+WUxxFSxx+':')
+			t,tmp = line.split(':'+WUxxFSxx+':')
 			#print(t) #debug
 			t = hms_to_sec(t)
 			#print(t) #debug
-			step = tmp.split('steps')[1].strip().strip('(').strip(')').strip('%')
+			step = tmp.split('steps')[1].strip().strip('(%)')
 			step = int(step)
 			x[step] = t
 	return x
@@ -275,7 +277,7 @@ def get_nv_smi():
 	if util_find :
 		#because of space characters in the path, we need to plus "" 
 		if chr(0x20) in util_cmd:
-			util_cmd = '"' + util_cmd+'"'  
+			util_cmd = '"' + util_cmd + '"'
 
 		return util_cmd
 	else:
@@ -406,7 +408,7 @@ def get_html():
 
 def get_manho_gpu_table(html):
 
-	html_select_gpu = html.split('<select name="gpuid">')[-1].split('</select>')[0]
+	html_select_gpu = html.split('<select name="gpuid">')[1].split('</select>')[0]
 
 	op_list = html_select_gpu.split('</option>')
 	#print len(op_list)
@@ -416,8 +418,9 @@ def get_manho_gpu_table(html):
 
 	map_gpuname_id = {}
 	for hh in op_list:
-		gpuname = hh.split('>')[1].strip().replace('\x20','').upper()
-		gpuid   = hh.split('>')[0].split('=')[1].strip().strip('"')
+		tmp = hh.split('>')
+		gpuname = tmp[1].strip().replace('\x20','').upper()
+		gpuid   = tmp[0].split('=')[1].strip().strip('"')
 		map_gpuname_id[gpuname] = gpuid
 
 	#print( map_gpuname_id ) #debug
