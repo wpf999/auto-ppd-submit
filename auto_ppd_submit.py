@@ -3,40 +3,46 @@
 # author: wpf999[in]equn.com 
 # release date: 20160216
 # release date: 20170920
-# release date: 20200405 , fix 5 bugs  
-
+# release date: 20200405   #fix 5 bugs  
+# release date: 20200406   #detect ImportError
 import sys
 if sys.version_info.major != 3 :
 	print( 'python3 is needed. \npress enter to exit...' )
 	sys.stdin.readline()
 	exit(-1)
-
-
-import os
-import time
-import xml.dom.minidom
-import platform
-import urllib.request, urllib.parse, urllib.error
-import http.client
-import logging
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
+try:
+	import os
+	import platform
+	import time
+	import xml.dom.minidom
+	import platform
+	import urllib.request, urllib.parse, urllib.error
+	import http.client
+	import logging
+	import ssl
+	ssl._create_default_https_context = ssl._create_unverified_context
+except:
+	t,v,_ = sys.exc_info()
+	print(t,v)
+	print( 'press enter to exit...' )
+	sys.stdin.readline()
+	exit(-1)
 
 def hms_to_sec(s):
 	#s[0,1]:s[3,4]:s[6,7]
-	hour=int( s[0:2] )
-	min =int( s[3:5] )
-	sec =int( s[6:8] )
+	hour = int( s[0:2] )
+	min  = int( s[3:5] )
+	sec  = int( s[6:8] )
 	return 3600*hour + 60*min + sec
 #end def
 
 def read_log(fah_log):
-	f=open(fah_log, mode='rb')
-	bytes_list=f.readlines()
+	f = open(fah_log, mode='rb')
+	bytes_list = f.readlines()
 	f.close()
 	#print(type(bytes_list), len(bytes_list)) #debug
 	
-	contents=[]
+	contents = []
 	for b in bytes_list:
 		contents.append( b.decode( 'UTF-8', errors='ignore') )
 	#print(contents)
@@ -47,11 +53,11 @@ def read_log(fah_log):
 def get_os_info(log_lines):
 	for line in log_lines:
 		if 'OS:' in line:
-			os=line.split('OS:')[1].split()
+			os = line.split('OS:')[1].split()
 			if os[0]=='Linux':
-				os_name=os[0]
+				os_name = os[0]
 			else:
-				os_name=os[0]+' '+os[1]
+				os_name = os[0]+'\x20'+os[1]
 		
 		if 'OS Arch:' in line:
 			arch=line.split('OS Arch:')[1]
@@ -276,7 +282,7 @@ def get_nv_smi():
 	
 	if util_find :
 		#because of space characters in the path, we need to plus "" 
-		if chr(0x20) in util_cmd:
+		if '\x20' in util_cmd:
 			util_cmd = '"' + util_cmd + '"'
 
 		return util_cmd
@@ -451,9 +457,13 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 	gpu_table = get_manho_gpu_table(html)
 	os_table  = get_manho_os_table(html)
 
-	gpuname=gpu_info['name']   # gpu_info['name'] is official GPU name
+	gpuname=gpu_info['name']   # gpu_info['name'] is an official GPU name
 	gpuname=gpuname.replace('\x20','').upper() # delete space char for 1660Ti ~ 1660 Ti
 	
+	#手动处理特殊情况 
+	if gpuname.endswith('SUPER') :
+		gpuname = gpuname.replace('SUPER','S')   #manho's GPU name is not an official name 
+
 	if gpuname in gpu_table.keys():
 		gpuid = gpu_table[gpuname]
 	else:
@@ -697,6 +707,36 @@ def do_log(filename):
 			do_slot_log(lines[index:],user,team,os_info)
 #end def
 
+def init():
+	#set window title in Windows
+	if platform.system() == 'Windows' :
+		os.system('title auto_ppd_submit.py')
+
+	#set work dir
+	print('my name:',__file__)
+	pwd = os.path.split(os.path.realpath(__file__))[0]
+	print('pwd:',pwd)
+	os.chdir(pwd)
+	print('current dir:', os.getcwd() )
+	
+	#check fah log file
+	if not ( os.path.exists( FAH_LOG_FILE ) and os.path.isfile( FAH_LOG_FILE ) ):
+		print('#'*60)
+		print('')
+		print('can not find folding@home log file!')
+		print('please put auto_ppd_submit.py in folding@home work dir.' )
+		print('')
+		print('#'*60)
+		raise Exception('no log file')
+	
+	#check nvidia-smi tool
+	print('nvidia-smi:' , get_nv_smi() )
+
+	#set my log 
+	logging.basicConfig(filename='auto_ppd_submit.log',  level=logging.DEBUG,  format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s' )
+	
+#end def
+
 # ##################################################################################################
 FAH_GPU_CORES = ('0x15','0x16','0x17','0x18','0x19','0x20','0x21','0x22')
 submit_db = set([])
@@ -704,24 +744,9 @@ submit_db = set([])
 if __name__ == '__main__':
 	FAH_LOG_FILE = 'log.txt'
 	try:
+		init()
 		
-		print('nvidia-smi:' , get_nv_smi() )
-		print('my name:',__file__)
-		pwd = os.path.split(os.path.realpath(__file__))[0]
-		print('pwd:',pwd)
-		os.chdir(pwd)
-		print('current dir:', os.getcwd() )
-		if not ( os.path.exists( FAH_LOG_FILE ) and os.path.isfile( FAH_LOG_FILE ) ):
-			print('#'*60)
-			print('')
-			print('can not find folding@home log file!')
-			print('please put auto_ppd_submit.py in folding@home work dir.' )
-			print('')
-			print('#'*60)
-			raise Exception('no log file')
-		
-		logging.basicConfig(filename='auto_ppd_submit.log',  level=logging.DEBUG,  format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s' )
-		
+		# main loop
 		while True:
 			print('-'*80)
 			do_log( FAH_LOG_FILE )
