@@ -87,12 +87,22 @@ def get_gpu_list(log_lines):
 	if gpu_count<=0 :
 		return []
 	
-	x=[]
-	for i in range( 0, gpu_count ):
-		tmp=log_lines[index+1+i].split('GPU')[1].strip()
-		#gpu_name=tmp.split('[')[1].strip(']')
-		gpu_name=tmp.split('[')[1].split(']')[0]
-		x.append(gpu_name)
+	x = []
+	gpu = 0
+	i = 0
+	while True:
+		i = i + 1 
+		lineX = log_lines[ index + i ]
+		if 'GPU' in lineX :
+			tmp=lineX.split('GPU')[1].strip()
+			#gpu_name=tmp.split('[')[1].strip(']')
+			gpu_name=tmp.split('[')[1].split(']')[0]
+			x.append(gpu_name)
+			gpu = gpu + 1
+			if gpu == gpu_count :
+				break
+
+
 	return x
 #end def
 
@@ -742,10 +752,9 @@ FAH_GPU_CORES = ('0x15','0x16','0x17','0x18','0x19','0x20','0x21','0x22')
 submit_db = set([])
 
 if __name__ == '__main__':
-	FAH_LOG_FILE = 'log.txt'
+	FAH_LOG_FILE = r'C:\Program Files (x86)\FAHClient\log.txt'
 	try:
 		init()
-		
 		# main loop
 		while True:
 			print('-'*80)
@@ -756,9 +765,11 @@ if __name__ == '__main__':
 			sys.stdout.flush()
 			time.sleep(60)
 	except:
-		t,v,_ = sys.exc_info()
-		print(t,v)
-		#os.system("pause")
-		print( 'press enter to exit...' )
-		sys.stdin.readline()
-		exit(-1)
+			t,v,_ = sys.exc_info()
+			print(t,v)
+			#os.system("pause")
+			print( 'press enter to exit...' )
+			sys.stdin.readline()
+			exit(-1)
+		
+
