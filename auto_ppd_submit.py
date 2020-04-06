@@ -742,10 +742,9 @@ def init():
 def search_fah_log():
 	fah_log_file = {}
 	fah_log_file[0] = 'log.txt' #current dir
-	fah_log_file[1] = r'C:\Program Files (x86)\FAHClient\log.txt'
-	fah_log_file[2] = r'D:\Program Files (x86)\FAHClient\log.txt'
-	fah_log_file[3] = r'C:\Users\root\AppData\Roaming\FAHClient'
-	fah_log_file[4] = r'D:\Users\root\AppData\Roaming\FAHClient'
+	fah_log_file[1] = str(os.getenv('SYSTEMDRIVE')) + r'\Program Files (x86)\FAHClient\log.txt'
+	fah_log_file[2] = str(os.getenv('SYSTEMDRIVE')) + r'\Users\root\AppData\Roaming\FAHClient\log.txt'
+	
 
 	for i in range(0, len(fah_log_file)) :
 		x = fah_log_file[i]
@@ -758,8 +757,8 @@ def search_fah_log():
 	print('please put auto_ppd_submit.py in folding@home work dir.' )
 	print('')
 	print('#'*60)
-
 	raise Exception('NO fah log file')
+
 #end def
 
 
