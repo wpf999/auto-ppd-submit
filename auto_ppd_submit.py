@@ -729,16 +729,6 @@ def init():
 	os.chdir(pwd)
 	print('current dir:', os.getcwd() )
 	
-	#check fah log file
-	if not ( os.path.exists( FAH_LOG_FILE ) and os.path.isfile( FAH_LOG_FILE ) ):
-		print('#'*60)
-		print('')
-		print('can not find folding@home log file!')
-		print('please put auto_ppd_submit.py in folding@home work dir.' )
-		print('')
-		print('#'*60)
-		raise Exception('no log file')
-	
 	#check nvidia-smi tool
 	print('nvidia-smi:' , get_nv_smi() )
 
@@ -747,18 +737,42 @@ def init():
 	
 #end def
 
+def search_fah_log():
+	fah_log_file = {}
+	fah_log_file[0] = 'log.txt' #current dir
+	fah_log_file[1] = r'C:\Program Files (x86)\FAHClient\log.txt'
+	fah_log_file[2] = r'D:\Program Files (x86)\FAHClient\log.txt'
+	fah_log_file[3] = r'C:\Users\root\AppData\Roaming\FAHClient'
+	fah_log_file[4] = r'D:\Users\root\AppData\Roaming\FAHClient'
+
+	for i in range(0, len(fah_log_file)) :
+		x = fah_log_file[i]
+		if  os.path.exists( x ) and os.path.isfile( x ) :
+			return x
+
+	print('#'*60)
+	print('')
+	print('can not find folding@home log file!')
+	print('please put auto_ppd_submit.py in folding@home work dir.' )
+	print('')
+	print('#'*60)
+
+	raise Exception('NO fah log file')
+#end def
+
+
 # ##################################################################################################
 FAH_GPU_CORES = ('0x15','0x16','0x17','0x18','0x19','0x20','0x21','0x22')
 submit_db = set([])
 
 if __name__ == '__main__':
-	FAH_LOG_FILE = r'C:\Program Files (x86)\FAHClient\log.txt'
 	try:
 		init()
+		fah_log_file = search_fah_log()
 		# main loop
 		while True:
 			print('-'*80)
-			do_log( FAH_LOG_FILE )
+			do_log( fah_log_file )
 			print(time.asctime( time.localtime(time.time()) ))
 			print('-'*80)
 			print('\n\n')
