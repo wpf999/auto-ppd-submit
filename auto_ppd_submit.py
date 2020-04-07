@@ -6,7 +6,6 @@
 # release date: 20200405   #fix 5 bugs  
 # release date: 20200406   #detect ImportError
 # release date: 20200407   #fix bug in function get_gpu_list
-
 import sys
 if sys.version_info.major != 3 :
 	print( 'python3 is needed. \npress enter to exit...' )
@@ -85,26 +84,25 @@ def get_gpu_count_v2(log_lines):
 #end def
 
 def get_gpu_list(log_lines):
-	gpu_count,index=get_gpu_count_v2(log_lines)
+	gpu_count,index = get_gpu_count_v2(log_lines)
 	if gpu_count<=0 :
 		return []
 	
 	x = []
 	gpu = 0
-	i = 0
+	i = index
 	while True:
 		i = i + 1 
-		lineX = log_lines[ index + i ]
-		if 'GPU' in lineX :
+		lineX = log_lines[i]
+		if ( 'GPU' in lineX ) and ( '[' in lineX ) and ( ']' in lineX ):
 			tmp=lineX.split('GPU')[1].strip()
-			#gpu_name=tmp.split('[')[1].strip(']')
 			gpu_name=tmp.split('[')[1].split(']')[0]
 			x.append(gpu_name)
 			gpu = gpu + 1
 			if gpu == gpu_count :
 				break
-
-
+		if '*'*70 in lineX :   #end system section in the log 
+			break
 	return x
 #end def
 
@@ -787,4 +785,3 @@ if __name__ == '__main__':
 			sys.stdin.readline()
 			exit(-1)
 		
-
