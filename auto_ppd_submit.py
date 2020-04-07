@@ -6,6 +6,8 @@
 # release date: 20200405   #fix 5 bugs  
 # release date: 20200406   #detect ImportError
 # release date: 20200407   #fix bug in function get_gpu_list
+
+
 import sys
 if sys.version_info.major != 3 :
 	print( 'python3 is needed. \npress enter to exit...' )
