@@ -18,7 +18,6 @@ try:
 	import platform
 	import time
 	import xml.dom.minidom
-	import platform
 	import urllib.request, urllib.parse, urllib.error
 	import http.client
 	import logging
