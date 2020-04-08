@@ -80,6 +80,8 @@ def get_os_info():
 		'name':os_name ,
 		'arch':uname.machine
 	}
+#end def
+
 def get_num_gpus(log_lines):
 	for index,line in enumerate(log_lines):
 		if 'GPUs:' in line:
