@@ -52,7 +52,7 @@ def read_log(fah_log):
 	return contents
 #end def
 
-def get_os_info(log_lines):
+def get_os_info_v0(log_lines):
 	for line in log_lines:
 		if 'OS:' in line:
 			os = line.split('OS:')[1].split()
@@ -68,6 +68,12 @@ def get_os_info(log_lines):
 	return { 'name':os_name.strip(),  'arch':arch.strip() }
 #end def
 
+def get_os_info():
+	uname = platform.uname()
+	return {
+		'name':uname.system + uname.release ,
+		'arch':uname.machine
+	}
 def get_num_gpus(log_lines):
 	for index,line in enumerate(log_lines):
 		if 'GPUs:' in line:
@@ -438,16 +444,16 @@ def get_manho_gpu_table(html):
 
 def get_manho_os_table(html):
 	#html may be checked in the future
-	return {'Windows XP'            	:'1',
-			'Windows Vista'         	:'2', 
-			'Windows Server 2008'   	:'2',
-			'Windows 7'             	:'3', 
-			'Windows Server 2008 R2'	:'3',
-			'Windows 8'             	:'4',
-			'Windows Server 2012'   	:'4',
-			'Windows 8.1'           	:'5',
-			'Windows 10'            	:'6',
-			'Linux'                 	:'7'}
+	return {'Windows XP'.replace('\x20','')            	:'1',
+			'Windows Vista'.replace('\x20','')         	:'2', 
+			'Windows 2008 Server'.replace('\x20','')   	:'2',
+			'Windows 7'.replace('\x20','')             	:'3', 
+			'Windows 2008 Server R2'.replace('\x20','')	:'3',
+			'Windows 8'.replace('\x20','')             	:'4',
+			'Windows 2012 Server'.replace('\x20','')   	:'4',
+			'Windows 8.1'.replace('\x20','')           	:'5',
+			'Windows 10'.replace('\x20','')            	:'6',
+			'Linux'.replace('\x20','')                 	:'7'}
 
 #end def
 
@@ -681,7 +687,7 @@ def do_log(filename):
 		raise Exception('No GPU in your system! exit...')
 
 	gpu_list   = get_gpu_list(lines)
-	os_info    = get_os_info(lines)
+	os_info    = get_os_info( )
 	index_list = get_starting_index(lines)
 
 	print('%15s'%'User:'       , user )
