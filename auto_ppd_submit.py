@@ -6,7 +6,7 @@
 # release date: 20200405   #fix 5 bugs  
 # release date: 20200406   #detect ImportError
 # release date: 20200407   #fix bug in function get_gpu_list
-
+# release date: 20200408   #fix bug for os name map
 
 import sys
 if sys.version_info.major != 3 :
@@ -70,8 +70,14 @@ def get_os_info_v0(log_lines):
 
 def get_os_info():
 	uname = platform.uname()
+	os_name = uname.system + uname.release
+	if uname.system == 'Linux':
+		os_name = 'Linux'
+	else:
+		os_name = uname.system + uname.release
+
 	return {
-		'name':uname.system + uname.release ,
+		'name':os_name ,
 		'arch':uname.machine
 	}
 def get_num_gpus(log_lines):
@@ -444,16 +450,22 @@ def get_manho_gpu_table(html):
 
 def get_manho_os_table(html):
 	#html may be checked in the future
-	return {'Windows XP'.replace('\x20','')            	:'1',
-			'Windows Vista'.replace('\x20','')         	:'2', 
-			'Windows 2008 Server'.replace('\x20','')   	:'2',
-			'Windows 7'.replace('\x20','')             	:'3', 
-			'Windows 2008 Server R2'.replace('\x20','')	:'3',
-			'Windows 8'.replace('\x20','')             	:'4',
-			'Windows 2012 Server'.replace('\x20','')   	:'4',
-			'Windows 8.1'.replace('\x20','')           	:'5',
-			'Windows 10'.replace('\x20','')            	:'6',
-			'Linux'.replace('\x20','')                 	:'7'}
+	os_table = {'Windows XP'        	:'1',
+			'Windows Vista'         	:'2', 
+			'Windows 2008 Server'   	:'2',
+			'Windows 7'             	:'3', 
+			'Windows 2008 Server R2'	:'3',
+			'Windows 8'             	:'4',
+			'Windows 2012 Server'   	:'4',
+			'Windows 8.1'           	:'5',
+			'Windows 10'            	:'6',
+			'Linux'                 	:'7'}
+
+	t = {}
+	for item in os_table.keys():
+		x = item.replace('\x20','')
+		t[x] = os_table[item]
+	return t
 
 #end def
 
