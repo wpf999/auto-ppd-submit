@@ -71,10 +71,10 @@ def get_os_info_v0(log_lines):
 def get_os_info():
 	uname = platform.uname()
 	os_name = uname.system + uname.release
-	if uname.system == 'Linux':
-		os_name = 'Linux'
-	else:
+	if uname.system.upper() == 'Windows'.upper():
 		os_name = uname.system + uname.release
+	else:
+		os_name = uname.system
 
 	return {
 		'name':os_name ,
