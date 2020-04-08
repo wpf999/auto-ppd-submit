@@ -77,8 +77,8 @@ def get_num_gpus(log_lines):
 #end def
 
 def get_gpu_list(log_lines):
-	gpu_count,index = get_num_gpus(log_lines)
-	if gpu_count<=0 :
+	num_gpus,index = get_num_gpus(log_lines)
+	if num_gpus<=0 :
 		return []
 	
 	x = []
@@ -92,7 +92,7 @@ def get_gpu_list(log_lines):
 			gpu_name=tmp.split('[')[1].split(']')[0]
 			x.append(gpu_name)
 			gpu = gpu + 1
-			if gpu == gpu_count :
+			if gpu == num_gpus :
 				break
 		if '*'*70 in lineX :   #end system section in the log 
 			break
