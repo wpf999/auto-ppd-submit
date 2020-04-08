@@ -68,15 +68,7 @@ def get_os_info(log_lines):
 	return { 'name':os_name.strip(),  'arch':arch.strip() }
 #end def
 
-def get_gpu_count(log_lines):
-	for line in log_lines:
-		if 'GPUs:' in line:
-			gpu_count=line.split('GPUs:')[1]
-			return int(gpu_count.strip())
-	return -1
-#end def
-
-def get_gpu_count_v2(log_lines):
+def get_num_gpus(log_lines):
 	for index,line in enumerate(log_lines):
 		if 'GPUs:' in line:
 			gpu_count=line.split('GPUs:')[1]
@@ -85,7 +77,7 @@ def get_gpu_count_v2(log_lines):
 #end def
 
 def get_gpu_list(log_lines):
-	gpu_count,index = get_gpu_count_v2(log_lines)
+	gpu_count,index = get_num_gpus(log_lines)
 	if gpu_count<=0 :
 		return []
 	
@@ -139,7 +131,7 @@ def get_user_and_team(lines):
 	return u,t
 #end def
 
-def get_num_of_slots(lines):
+def get_num_slots(lines):
 	config_xml = get_config(lines)
 	DOMTree = xml.dom.minidom.parseString(config_xml)
 	root = DOMTree.documentElement
@@ -516,9 +508,9 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 		
 
 	if os_info['arch'] == 'AMD64':
-		os_arch_num='64'
+		arch='64'
 	else:
-		os_arch_num='32'
+		arch='32'
 	
 	return {'user':user,
 			'team':team,
@@ -533,7 +525,7 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 			'pciever':pci_gen,
 			'pciespeed':pci_speed,
 			'os':os_id,
-			'arch':os_arch_num
+			'arch':arch
 			}
 
 #end def
@@ -682,9 +674,9 @@ def do_log(filename):
 	lines = read_log(filename)
 
 	user,team  = get_user_and_team(lines)
-	n_slots    = get_num_of_slots(lines)
+	n_slots    = get_num_slots(lines)
 
-	n_GPUs     = get_gpu_count(lines)
+	n_GPUs, _  = get_num_gpus(lines)
 	if n_GPUs <= 0: 
 		raise Exception('No GPU in your system! exit...')
 
