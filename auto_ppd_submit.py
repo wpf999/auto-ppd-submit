@@ -13,24 +13,22 @@ if sys.version_info.major != 3 :
 	print( 'python3 is needed. \npress enter to exit...' )
 	sys.stdin.readline()
 	exit(-1)
-# try:
-import os
-import platform
-import time
-import xml.dom.minidom
-
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
-import urllib.request, urllib.parse, urllib.error
-import http.client
-
-import logging
-# except:
-# 	t,v,_ = sys.exc_info()
-# 	print(t,v)
-# 	print( 'press enter to exit...' )
-# 	sys.stdin.readline()
-# 	exit(-1)
+try:
+	import os
+	import platform
+	import time
+	import xml.dom.minidom
+	import ssl
+	ssl._create_default_https_context = ssl._create_unverified_context
+	import urllib.request, urllib.parse, urllib.error
+	import http.client
+	import logging
+except:
+	t,v,_ = sys.exc_info()
+	print(t,v)
+	print( 'press enter to exit...' )
+	sys.stdin.readline()
+	exit(-1)
 
 def hms_to_sec(s):
 	#s[0,1]:s[3,4]:s[6,7]
