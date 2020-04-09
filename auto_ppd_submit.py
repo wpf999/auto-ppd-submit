@@ -781,7 +781,8 @@ def search_fah_log():
 
 
 # ##################################################################################################
-FAH_GPU_CORES = ('0x15','0x16','0x17','0x18','0x19','0x20','0x21','0x22')
+FAH_GPU_CORES = ('0x15', '0x16', '0x17', '0x18',
+                 '0x19', '0x20', '0x21', '0x22')
 submit_db = set([])
 
 if __name__ == '__main__':
@@ -791,17 +792,16 @@ if __name__ == '__main__':
 		# main loop
 		while True:
 			print('-'*80)
-			do_log( fah_log_file )
-			print(time.asctime( time.localtime(time.time()) ))
+			do_log(fah_log_file)
+			print(time.asctime(time.localtime(time.time())))
 			print('-'*80)
 			print('\n\n')
 			sys.stdout.flush()
 			time.sleep(60)
 	except:
-			t,v,_ = sys.exc_info()
-			print(t,v)
+			t, v, _ = sys.exc_info()
+			print(t, v)
 			#os.system("pause")
-			print( 'press enter to exit...' )
+			print('press enter to exit...')
 			sys.stdin.readline()
 			exit(-1)
-		
