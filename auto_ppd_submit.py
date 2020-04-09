@@ -556,51 +556,52 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 
 #end def
 
-def post_form( form_para ):
-	if form_para==None:
+
+def post_form(form_para):
+	if form_para == None:
 		return -2
 
 	user = form_para['user']
 	team = form_para['team']
 
-	post_body=form_para
+	post_body = form_para
 	post_body['submit'] = ''
-	post_body['auto']   = '1'
-	
+	post_body['auto'] = '1'
+
 	params = urllib.parse.urlencode(post_body)
 
 	cookie = 'username='+user+'; team='+team
-	header = {'Content-type': 'application/x-www-form-urlencoded',   'Cookie': cookie }
-	
-	html=''  #html needs a initial value 
+	header = {'Content-type': 'application/x-www-form-urlencoded',   'Cookie': cookie}
+
+	html = ''  # html needs a initial value
 	try:
 		conn = http.client.HTTPSConnection('fah.manho.org')
-		conn.request('POST', '/gpu_statistics.php?a=add', params , header)
+		conn.request('POST', '/gpu_statistics.php?a=add', params, header)
 		resp = conn.getresponse()
-		if resp.status!=200 :
+		if resp.status != 200:
 			print('===========HTTP response code is not 200 !===========')
 			return -1
-	
+
 		resp_data = resp.read()
-		html= resp_data.decode( 'utf-8' )
+		html = resp_data.decode('utf-8')
 		conn.close()
 	except:
-		t,v,_ = sys.exc_info()
-		print(t,v)
+		t, v, _ = sys.exc_info()
+		print(t, v)
 		print('网络异常，本次提交失败。下一次继续重试...')
 		return -2
-	
+
 	#print( html ) #debug
-	if  ( '您输入的数据已经成功提交' in html) or ('未找到符合用户名的记录' in html):
+	if ('您输入的数据已经成功提交' in html) or ('未找到符合用户名的记录' in html):
 		logging.info('===========Submit  OK ! ===========')
-		logging.info( post_body )
+		logging.info(post_body)
 		print('===========Submit  OK ! ===========')
 		return 0
 	else:
 		print(html)
 		print('===========Submit Error!===========')
 		return -1
-	
+
 #end def
 
 
