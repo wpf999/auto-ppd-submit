@@ -18,11 +18,12 @@ try:
 	import platform
 	import time
 	import xml.dom.minidom
+	import logging
+	import urllib.parse
 	import ssl
 	ssl._create_default_https_context = ssl._create_unverified_context
-	import urllib.request, urllib.parse, urllib.error
 	import http.client
-	import logging
+	
 except:
 	t,v,_ = sys.exc_info()
 	print(t,v)
