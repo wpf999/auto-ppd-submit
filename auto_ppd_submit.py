@@ -172,14 +172,15 @@ def get_last_starting_slot(line):
 	return slot_id,int(slot_id)
 #end def
 
-def get_gpu_id_by_slot(slot_id,lines):
-	tag='Enabled folding slot '+slot_id
+
+def get_gpu_id_by_slot(slot_id, lines):
+	tag = 'Enabled folding slot '+slot_id
 	c = len(lines)
-	for i in range( c-1, 0, -1 ):
+	for i in range(c-1, 0, -1):
 		if (tag in lines[i]) and ('gpu:' in lines[i]):
-			gpu_id=lines[i].split(tag)[1].split('gpu:')[1].split(':')[0]
+			gpu_id = lines[i].split(tag)[1].split('gpu:')[1].split(':')[0]
 			return int(gpu_id)
-	return -1 # this slot do not use GPU
+	return -1  # this slot do not use GPU
 #end def
 
 def get_last_starting_core(lines):
@@ -204,34 +205,37 @@ def get_last_starting_project(lines):
 	return -1 #some exception
 #end def
 
+
 def get_last_starting_WU_project_and_core(lines):
-	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
 			if ':Project:' in line:
-				project_num=line.split(':Project:')[1].split()[0]
-				core       =line.split(':Project:')[0].split(WUxxFSxx+':')[1]
-				return int(project_num),core
-	return -1 #some exception
+				project_num = line.split(':Project:')[1].split()[0]
+				core = line.split(':Project:')[0].split(WUxxFSxx+':')[1]
+				return int(project_num), core
+	return -1  # some exception
 #end def
 
+
 def get_last_starting_pid(lines):
-	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx+':Core PID:' in line:
 			pid = line.split(':Core PID:')[1].strip()
 			#print 'pid',pid
 			return int(pid)
-	return -1 #some exception
+	return -1  # some exception
 #end def
 
+
 def get_last_starting_WU_id(lines):
-	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
 			if 'Unit:' in line:
 				return line.split('Unit:')[1].strip()
-	return -1 #some exception
+	return -1  # some exception
 #end def
 
 def get_core_WUxxFSxx(line):
@@ -242,17 +246,18 @@ def get_core_WUxxFSxx(line):
 	return core,wuxx,slot
 #end def
 
-def get_info_by_id(id,lines):
-	total_line=len(lines)
+
+def get_info_by_id(id, lines):
+	total_line = len(lines)
 	for i in range(total_line-1, 0, -1):
 		if ('Unit: '+id) in lines[i]:
-			core,wuxx,slot = get_core_WUxxFSxx(lines[i])
+			core, wuxx, slot = get_core_WUxxFSxx(lines[i])
 			tag = wuxx+':'+slot+':'+core+':Project:'
-			for j in range(i-1,0,-1):
+			for j in range(i-1, 0, -1):
 				if tag in lines[j]:
-					project=lines[j].split(tag)[1].strip()
-					project_num= int(project.split()[0])
-					return project_num,core,wuxx,slot,i,j,project
+					project = lines[j].split(tag)[1].strip()
+					project_num = int(project.split()[0])
+					return project_num, core, wuxx, slot, i, j, project
 	return -1
 #end def
 	
@@ -381,8 +386,8 @@ def get_gpu_info():
 #end def
 
 def get_html():
-	username='wpf'
-	team='3213'
+	username = 'wpf'
+	team = '3213'
 
 	#post_body={}
 	#post_body['username']=username
@@ -410,22 +415,22 @@ def get_html():
 	html=''
 	try:
 		conn = http.client.HTTPSConnection('fah.manho.org')
-		conn.request('POST', '/gpu_statistics.php?a=add', params , header)
+		conn.request('POST', '/gpu_statistics.php?a=add', params, header)
 		resp = conn.getresponse()
-		if resp.status!=200 :
+		if resp.status != 200:
 			print('===========HTTP response code is not 200 !===========')
 			return ''
-			
+
 		resp_data = resp.read()
-		html= resp_data.decode( 'utf-8' )
+		html = resp_data.decode('utf-8')
 		#print(html) #debug
 		conn.close()
 	except:
-		t,v,_ = sys.exc_info()
-		print(t,v)
+		t, v, _ = sys.exc_info()
+		print(t, v)
 		print('Network exception: can not visit fah.manho.org')
 		return ''
-		
+
 	return html
 
 #end def
@@ -453,16 +458,16 @@ def get_manho_gpu_table(html):
 
 def get_manho_os_table(html):
 	#html may be checked in the future
-	os_table = {'Windows XP'        	:'1',
-			'Windows Vista'         	:'2', 
-			'Windows 2008 Server'   	:'2',
-			'Windows 7'             	:'3', 
-			'Windows 2008 Server R2'	:'3',
-			'Windows 8'             	:'4',
-			'Windows 2012 Server'   	:'4',
-			'Windows 8.1'           	:'5',
-			'Windows 10'            	:'6',
-			'Linux'                 	:'7'}
+	os_table = {'Windows XP'        	: '1',
+             'Windows Vista'         	: '2',
+             'Windows 2008 Server'   	: '2',
+             'Windows 7'             	: '3',
+             'Windows 2008 Server R2'	: '3',
+             'Windows 8'             	: '4',
+             'Windows 2012 Server'   	: '4',
+             'Windows 8.1'           	: '5',
+             'Windows 10'            	: '6',
+             'Linux'                 	: '7'}
 
 	t = {}
 	for item in os_table.keys():
