@@ -461,7 +461,7 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 		raise Exception( 'can not find your OS id on fah.manho.org, exit...' )
 		
 
-	if os_info['arch'] == 'AMD64':
+	if os_info['arch'] == 'AMD64' or os_info['arch']=='x86_64':
 		arch='64'
 	else:
 		arch='32'
