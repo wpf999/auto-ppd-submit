@@ -209,7 +209,7 @@ def get_last_starting_WU_project_and_core(lines):
 #end def
 
 
-def get_WU_core_pid(lines):
+def get_WU_core_PID(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx+':Core PID:' in line:
@@ -620,7 +620,7 @@ def do_slot_log(lines,  user,team, os_info):
 	else:
 		#'需要找到本slot对应的GPU'
 		#'按PID寻找GPU'
-		core_pid = get_WU_core_pid(lines)
+		core_pid = get_WU_core_PID(lines)
 		gpu_info = None
 	
 		for ginfo in gpu_info_list:
