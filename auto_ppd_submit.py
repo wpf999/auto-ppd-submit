@@ -54,7 +54,6 @@ def read_log(fah_log):
 	return contents
 #end def
 
-
 def get_os_info():
 	uname = platform.uname()
 	os_name = uname.system + uname.release
