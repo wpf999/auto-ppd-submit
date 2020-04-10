@@ -146,7 +146,7 @@ def get_num_slots(config_xml):
 	return n_slots
 #end def
 	
-def get_starting_index(log_lines):
+def get_WU_index_list(log_lines):
 	c=len(log_lines)
 	index_list=[]
 	for i in range(c-1, 0, -1):
@@ -634,9 +634,9 @@ def do_log(filename):
 	if n_GPUs <= 0: 
 		raise Exception('No GPU in your system! exit...')
 
-	gpu_list   = get_gpu_list(lines)
-	os_info    = get_os_info( )
-	index_list = get_starting_index(lines)
+	gpu_list      = get_gpu_list(lines)
+	os_info       = get_os_info( )
+	WU_index_list = get_WU_index_list(lines)
 
 	print('%15s'%'User:'       , user )
 	print('%15s'%'Team:'       , team )
@@ -645,11 +645,11 @@ def do_log(filename):
 	print('%15s'%'GPU List:'   , gpu_list )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'index_list:' , index_list )
+	print('%15s'%'index_list:' , WU_index_list )
 
 	s=set([])
 	
-	for index in index_list:
+	for index in WU_index_list:
 		core = get_WU_core(lines[index:])
 		if core not in FAH_GPU_CORES :
 			continue #skip cpu slot
