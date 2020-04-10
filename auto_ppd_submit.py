@@ -276,18 +276,6 @@ def get_last_starting_WU_time_and_steps(lines):
 	return x
 #end def
 
-def nvapi_detect_clock(pci_bus):
-	
-	buf = os.popen( 'GPU_nvapi_using.exe  ' + pci_bus ).read()
-	print(buf)
-	for line in buf.splitlines():
-		if 'core frequency=' in line:
-			core_f = line.split('=')[1].strip('MHz').strip()
-		if 'mem frequency=' in line:
-			mem_f = line.split('=')[1].strip('MHz').strip()
-	return core_f,mem_f
-#end def
-
 def get_nv_smi():
 
 	util_paths={}
