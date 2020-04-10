@@ -246,21 +246,6 @@ def get_core_WUxxFSxx(line):
 	return core,wuxx,slot
 #end def
 
-
-def get_info_by_id(id, lines):
-	total_line = len(lines)
-	for i in range(total_line-1, 0, -1):
-		if ('Unit: '+id) in lines[i]:
-			core, wuxx, slot = get_core_WUxxFSxx(lines[i])
-			tag = wuxx+':'+slot+':'+core+':Project:'
-			for j in range(i-1, 0, -1):
-				if tag in lines[j]:
-					project = lines[j].split(tag)[1].strip()
-					project_num = int(project.split()[0])
-					return project_num, core, wuxx, slot, i, j, project
-	return -1
-#end def
-	
 def get_last_starting_WU_time_and_steps(lines):
 	x={}
 	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
