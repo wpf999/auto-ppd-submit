@@ -177,8 +177,7 @@ def get_gpu_id_by_slot(slot_id, lines):
 def get_WU_core(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
-		if WUxxFSxx in line:
-			if ':Project:' in line:
+		if WUxxFSxx+':Project:' in line:
 				core = line.split(':Project:')[0].split(':')[-1]
 				return core
 	return -1 #some exception
@@ -187,8 +186,7 @@ def get_WU_core(lines):
 def get_WU_project(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
-		if WUxxFSxx in line:
-			if ':Project:' in line:
+		if WUxxFSxx+':Project:' in line:
 				tmp = line.split(':Project:')
 				project_num = tmp[1].split()[0]
 				project     = tmp[1].strip()
@@ -206,12 +204,10 @@ def get_WU_core_PID(lines):
 	return -1  # some exception
 #end def
 
-
-def get_last_starting_WU_id(lines):
+def get_WU_UID(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
-		if WUxxFSxx in line:
-			if 'Unit:' in line:
+		if WUxxFSxx+'Unit:' in line:
 				return line.split('Unit:')[1].strip()
 	return -1  # some exception
 #end def
