@@ -7,6 +7,7 @@
 # release date: 20200406   #detect ImportError
 # release date: 20200407   #fix bug in function get_gpu_list
 # release date: 20200408   #fix bug for os name map
+# release date: 20200410   #refine
 
 import sys
 if sys.version_info.major != 3 :
@@ -743,6 +744,7 @@ def init():
 		os.system('title auto_ppd_submit.py')
 
 	#set work dir
+	print('*'*80)
 	print('my name:',__file__)
 	pwd = os.path.split(os.path.realpath(__file__))[0]
 	print('pwd:',pwd)
