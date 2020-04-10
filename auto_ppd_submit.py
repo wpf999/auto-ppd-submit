@@ -291,20 +291,19 @@ def nvapi_detect_clock(pci_bus):
 
 def get_nv_smi():
 
-	util_path={}
-	util_path[0] = r'/usr/bin/nvidia-smi'
-	util_path[1] = str(os.getenv('SYSTEMDRIVE')) + r'\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe'
-	util_path[2] = str(os.getenv('SYSTEMDRIVE')) + r'\Windows\System32\nvidia-smi.exe' 
+	util_paths={}
+	util_paths[0] = r'/usr/bin/nvidia-smi'
+	util_paths[1] = str(os.getenv('SYSTEMDRIVE')) + r'\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe'
+	util_paths[2] = str(os.getenv('SYSTEMDRIVE')) + r'\Windows\System32\nvidia-smi.exe' 
 	
-	util_find = False
+	util_cmd = ''
 	
-	for i in range( 0, len(util_path) ):
-		if os.path.exists( util_path[i] ):
-			util_cmd = util_path[i]
-			util_find = True
+	for i in range( 0, len(util_paths) ):
+		if os.path.exists( util_paths[i] ):
+			util_cmd = util_paths[i]
 			break
 	
-	if util_find :
+	if util_cmd != '' :
 		#because of space characters in the path, we need to plus "" 
 		if '\x20' in util_cmd:
 			util_cmd = '"' + util_cmd + '"'
