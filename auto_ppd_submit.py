@@ -164,7 +164,6 @@ def get_last_starting_slot(line):
 	return slot_id,int(slot_id)
 #end def
 
-
 def get_gpu_id_by_slot(slot_id, lines):
 	tag = 'Enabled folding slot '+slot_id
 	c = len(lines)
