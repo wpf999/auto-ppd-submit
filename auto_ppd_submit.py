@@ -758,14 +758,14 @@ def init():
 #end def
 
 def search_fah_log():
-	fah_log_file = {}
-	fah_log_file[0] = 'log.txt' #current dir
-	fah_log_file[1] = str(os.getenv('SYSTEMDRIVE')) + r'\Program Files (x86)\FAHClient\log.txt'
-	fah_log_file[2] = str(os.getenv('SYSTEMDRIVE')) + r'\Users\root\AppData\Roaming\FAHClient\log.txt'
+	fahlog_filepath = {}
+	fahlog_filepath[0] = 'log.txt' #current dir
+	fahlog_filepath[1] = str(os.getenv('SYSTEMDRIVE')) + r'\Program Files (x86)\FAHClient\log.txt'
+	fahlog_filepath[2] = str(os.getenv('SYSTEMDRIVE')) + r'\Users\root\AppData\Roaming\FAHClient\log.txt'
 	
 
-	for i in range(0, len(fah_log_file)) :
-		x = fah_log_file[i]
+	for i in range(0, len(fahlog_filepath)) :
+		x = fahlog_filepath[i]
 		if  os.path.exists( x ) and os.path.isfile( x ) :
 			return x
 
