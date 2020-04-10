@@ -634,7 +634,7 @@ def do_log(filename):
 	if n_GPUs <= 0: 
 		raise Exception('No GPU in your system! exit...')
 
-	gpu_list      = get_gpu_list(lines)
+	#gpu_list      = get_gpu_list(lines)
 	os_info       = get_os_info( )
 	WU_index_list = get_WU_index_list(lines)
 
