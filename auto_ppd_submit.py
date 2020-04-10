@@ -197,7 +197,7 @@ def get_WU_project(lines):
 def get_WU_UID(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
-		if WUxxFSxx+'Unit:' in line:
+		if WUxxFSxx+':Unit:' in line:
 				return line.split('Unit:')[1].strip()
 	return -1  # some exception
 #end def
