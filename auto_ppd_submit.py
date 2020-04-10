@@ -119,22 +119,22 @@ def get_config(lines):
 	c=len(lines)
 	i_begin=i_end=0
 	for i in range(c-1, 0, -1):
-		if '</config>' in lines[i]:
+		if '</config>' == lines[i].strip().strip('0123456789:'):
 			i_end=i
-		if '<config>' in lines[i]:
+		if '<config>' == lines[i].strip().strip('0123456789:'):
 			i_begin=i
 			break
 	
 	if i_begin==i_end:
 		raise Exception('can not find <config>')
 	
-	config=lines[i_begin:i_end+1]
-	s=''
-	for i in range( 0, len(config) ):
-		s = s + config[i][len('00:00:00:'):]
+	cfg_lines=lines[i_begin:i_end+1]
+	config=''
+	for i in range( 0, len(cfg_lines) ):
+		config = config + cfg_lines[i][len('00:00:00:'):]
 		
 	#print("config:\n"+s)#debug
-	return s
+	return config
 #end def
 
 def get_user_and_team(lines):
