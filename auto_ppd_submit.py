@@ -164,6 +164,16 @@ def get_WU_slot(line):
 	return slot_id,int(slot_id)
 #end def
 
+def get_WU_core_PID(lines):
+	WUxxFSxx = get_WUxxFSxx(lines[0])
+	for line in lines:
+		if WUxxFSxx+':Core PID:' in line:
+			pid = line.split(':Core PID:')[1].strip()
+			#print 'pid',pid
+			return int(pid)
+	return -1  # some exception
+#end def
+
 def get_WU_core(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
@@ -182,16 +192,6 @@ def get_WU_project(lines):
 				project     = tmp[1].strip()
 				return int(project_num), project
 	return -1 #some exception
-#end def
-
-def get_WU_core_PID(lines):
-	WUxxFSxx = get_WUxxFSxx(lines[0])
-	for line in lines:
-		if WUxxFSxx+':Core PID:' in line:
-			pid = line.split(':Core PID:')[1].strip()
-			#print 'pid',pid
-			return int(pid)
-	return -1  # some exception
 #end def
 
 def get_WU_UID(lines):
