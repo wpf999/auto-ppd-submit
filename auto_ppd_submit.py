@@ -164,16 +164,6 @@ def get_WU_slot(line):
 	return slot_id,int(slot_id)
 #end def
 
-def get_gpu_id_by_slot(slot_id, lines):
-	tag = 'Enabled folding slot '+slot_id
-	c = len(lines)
-	for i in range(c-1, 0, -1):
-		if (tag in lines[i]) and ('gpu:' in lines[i]):
-			gpu_id = lines[i].split(tag)[1].split('gpu:')[1].split(':')[0]
-			return int(gpu_id)
-	return -1  # this slot do not use GPU
-#end def
-
 def get_WU_core(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
