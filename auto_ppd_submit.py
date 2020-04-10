@@ -130,24 +130,32 @@ def get_config(lines):
 	
 	cfg_lines=lines[i_begin:i_end+1]
 
-	config = ''
+	config_xml = ''
 	for i in range( 0, len(cfg_lines) ):
-		config += cfg_lines[i].lstrip('0123456789:')
-	return config
+		config_xml += cfg_lines[i].lstrip('0123456789:')
+
+	user,team = get_user_and_team(config_xml)
+	n_slots = get_num_slots(config_xml)
+
+	return {
+		'user':user,
+		'team':team,
+		'num_slots':n_slots
+	}
 #end def
 
-def get_user_and_team(lines):
-	config_xml = get_config(lines)
+def get_user_and_team(config_xml):
+	
 	DOMTree = xml.dom.minidom.parseString(config_xml)
 	root = DOMTree.documentElement
-	u = root.getElementsByTagName('user')[0].getAttribute('v').strip()
-	t = root.getElementsByTagName('team')[0].getAttribute('v').strip()
+	user = root.getElementsByTagName('user')[0].getAttribute('v').strip()
+	team = root.getElementsByTagName('team')[0].getAttribute('v').strip()
 	#print( u, t )
-	return u,t
+	return user,team
 #end def
 
-def get_num_slots(lines):
-	config_xml = get_config(lines)
+def get_num_slots(config_xml):
+	
 	DOMTree = xml.dom.minidom.parseString(config_xml)
 	root = DOMTree.documentElement
 	n_slots = len(root.getElementsByTagName('slot'))
@@ -672,8 +680,8 @@ def do_log(filename):
 
 	lines = read_log(filename)
 
-	user,team  = get_user_and_team(lines)
-	n_slots    = get_num_slots(lines)
+	config = get_config(lines)
+	user,team,n_slots = config['user'], config['team'], config['num_slots']
 
 	n_GPUs, _  = get_num_gpus(lines)
 	if n_GPUs <= 0: 
