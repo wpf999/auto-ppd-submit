@@ -216,14 +216,6 @@ def get_last_starting_WU_id(lines):
 	return -1  # some exception
 #end def
 
-def get_core_WUxxFSxx(line):
-	x = line.split(':')
-	wuxx = x[3]
-	slot = x[4]
-	core = x[5]
-	return core,wuxx,slot
-#end def
-
 def get_WU_time_and_steps(lines):
 	x={}
 	WUxxFSxx=get_WUxxFSxx(lines[0])
