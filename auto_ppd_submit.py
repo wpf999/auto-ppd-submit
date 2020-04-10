@@ -642,10 +642,10 @@ def do_log(filename):
 	print('%15s'%'Team:'       , team )
 	print('%15s'%'Total Slots:', n_slots )
 	print('%15s'%'Total GPUs:' , n_GPUs )
-	print('%15s'%'GPU List:'   , gpu_list )
+	#print('%15s'%'GPU List:'   , gpu_list )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'index_list:' , WU_index_list )
+	print('%15s'%'WU index:' , WU_index_list )
 
 	s=set([])
 	
