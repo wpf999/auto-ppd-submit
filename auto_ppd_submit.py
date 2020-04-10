@@ -119,9 +119,9 @@ def get_config(lines):
 	c=len(lines)
 	i_begin=i_end=0
 	for i in range(c-1, 0, -1):
-		if '</config>' == lines[i].strip().strip('0123456789:'):
+		if '</config>' == lines[i].lstrip('0123456789:').strip():
 			i_end=i
-		if '<config>' == lines[i].strip().strip('0123456789:'):
+		if '<config>' == lines[i].lstrip('0123456789:').strip():
 			i_begin=i
 			break
 	
@@ -129,11 +129,10 @@ def get_config(lines):
 		raise Exception('can not find <config>')
 	
 	cfg_lines=lines[i_begin:i_end+1]
-	config=''
+
+	config = ''
 	for i in range( 0, len(cfg_lines) ):
-		config = config + cfg_lines[i][len('00:00:00:'):]
-		
-	#print("config:\n"+s)#debug
+		config += cfg_lines[i].lstrip('0123456789:')
 	return config
 #end def
 
