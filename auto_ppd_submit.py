@@ -159,7 +159,7 @@ def get_WUxxFSxx(line):
 	return line[9:18]
 #end def
 	
-def get_last_starting_slot(line):
+def get_WU_slot(line):
 	slot_id=get_WUxxFSxx(line).split('FS')[1]
 	return slot_id,int(slot_id)
 #end def
@@ -542,11 +542,10 @@ def post_form(form_para):
 
 #end def
 
-
 def do_slot_log(lines,  user,team, os_info):
 	global submit_db
 	
-	slot, _ = get_last_starting_slot(lines[0])
+	slot, _ = get_WU_slot(lines[0])
 	core = get_WU_core(lines)
 	project_num, project = get_WU_project(lines)
 	
@@ -665,7 +664,7 @@ def do_log(filename):
 		if core not in FAH_GPU_CORES :
 			continue #skip cpu slot
 		
-		slot, _ = get_last_starting_slot(lines[index])
+		slot, _ = get_WU_slot(lines[index])
 		if slot in s:
 			continue #only watch the last task for each slot
 		else:
