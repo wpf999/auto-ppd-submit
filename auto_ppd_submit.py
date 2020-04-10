@@ -174,7 +174,7 @@ def get_gpu_id_by_slot(slot_id, lines):
 	return -1  # this slot do not use GPU
 #end def
 
-def get_last_starting_core(lines):
+def get_WU_core(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
@@ -184,7 +184,7 @@ def get_last_starting_core(lines):
 	return -1 #some exception
 #end def
 
-def get_last_starting_project(lines):
+def get_WU_project(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
@@ -195,19 +195,6 @@ def get_last_starting_project(lines):
 				return int(project_num), project
 	return -1 #some exception
 #end def
-
-
-def get_last_starting_WU_project_and_core(lines):
-	WUxxFSxx = get_WUxxFSxx(lines[0])
-	for line in lines:
-		if WUxxFSxx in line:
-			if ':Project:' in line:
-				project_num = line.split(':Project:')[1].split()[0]
-				core = line.split(':Project:')[0].split(WUxxFSxx+':')[1]
-				return int(project_num), core
-	return -1  # some exception
-#end def
-
 
 def get_WU_core_PID(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
@@ -572,8 +559,8 @@ def do_slot_log(lines,  user,team, os_info):
 	global submit_db
 	
 	slot, _ = get_last_starting_slot(lines[0])
-	core = get_last_starting_core(lines)
-	project_num, project = get_last_starting_project(lines)
+	core = get_WU_core(lines)
+	project_num, project = get_WU_project(lines)
 	
 	print('%15s'%'Slot ID:',slot)
 	print('%15s'%'Core:',core)
@@ -620,17 +607,17 @@ def do_slot_log(lines,  user,team, os_info):
 	else:
 		#'需要找到本slot对应的GPU'
 		#'按PID寻找GPU'
-		core_pid = get_WU_core_PID(lines)
+		core_PID = get_WU_core_PID(lines)
 		gpu_info = None
 	
 		for ginfo in gpu_info_list:
 			#print( 'keys:',ginfo['pid_list'].keys() ) #debug
-			if core_pid in ginfo['pid_list'].keys() :
+			if core_PID in ginfo['pid_list'].keys() :
 				gpu_info = ginfo
 				#'找到了！'
 
 		if gpu_info is None :
-			print('Can not find GPU running on process #'+str(core_pid))
+			print('Can not find GPU running on process #'+str(core_PID))
 			return -1
 	#end if
 	
@@ -686,7 +673,7 @@ def do_log(filename):
 	s=set([])
 	
 	for index in index_list:
-		core = get_last_starting_core(lines[index:])
+		core = get_WU_core(lines[index:])
 		if core not in FAH_GPU_CORES :
 			continue #skip cpu slot
 		
