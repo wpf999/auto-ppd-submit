@@ -167,7 +167,7 @@ def get_WU_slot(line):
 def get_WU_core_PID(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
-		if WUxxFSxx+':Core PID:' in line:
+		if WUxxFSxx in line and ':Core PID:' in line:
 			pid = line.split(':Core PID:')[1].strip()
 			#print 'pid',pid
 			return int(pid)
@@ -177,27 +177,27 @@ def get_WU_core_PID(lines):
 def get_WU_core(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
-		if WUxxFSxx+':Project:' in line:
-				core = line.split(':Project:')[0].split(':')[-1]
-				return core
+		if (WUxxFSxx in line) and (':Project:' in line) :
+			core = line.split(':Project:')[0].split(':')[-1]
+			return core
 	return -1 #some exception
 #end def
 
 def get_WU_project(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
-		if WUxxFSxx+':Project:' in line:
-				tmp = line.split(':Project:')
-				project_num = tmp[1].split()[0]
-				project     = tmp[1].strip()
-				return int(project_num), project
+		if WUxxFSxx in line and ':Project:' in line:
+			tmp = line.split(':Project:')
+			project_num = tmp[1].split()[0]
+			project     = tmp[1].strip()
+			return int(project_num), project
 	return -1 #some exception
 #end def
 
 def get_WU_UID(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
-		if WUxxFSxx+':Unit:' in line:
+		if WUxxFSxx in line and ':Unit:' in line:
 				return line.split('Unit:')[1].strip()
 	return -1  # some exception
 #end def
