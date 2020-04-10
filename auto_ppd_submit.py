@@ -313,7 +313,7 @@ def get_gpu_info():
 	return get_nv_gpu_info()
 #end def
 
-def get_html():
+def get_manho_html():
 	username = 'wpf'
 	team = '3213'
 
@@ -407,7 +407,7 @@ def get_manho_os_table(html):
 
 def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 	
-	html=get_html()
+	html=get_manho_html()
 	if html=='' :
 		return None
 	
