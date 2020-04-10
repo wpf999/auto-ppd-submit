@@ -155,12 +155,12 @@ def get_starting_index(log_lines):
 	return index_list
 #end def
 
-def get_last_starting_WUxxFSxx(line):
+def get_WUxxFSxx(line):
 	return line[9:18]
 #end def
 	
 def get_last_starting_slot(line):
-	slot_id=get_last_starting_WUxxFSxx(line).split('FS')[1]
+	slot_id=get_WUxxFSxx(line).split('FS')[1]
 	return slot_id,int(slot_id)
 #end def
 
@@ -175,17 +175,17 @@ def get_gpu_id_by_slot(slot_id, lines):
 #end def
 
 def get_last_starting_core(lines):
-	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
 			if ':Project:' in line:
-				core = line.split(':Project:')[0].split(WUxxFSxx+':')[1]
+				core = line.split(':Project:')[0].split(':')[-1]
 				return core
 	return -1 #some exception
 #end def
 
 def get_last_starting_project(lines):
-	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
 			if ':Project:' in line:
@@ -198,7 +198,7 @@ def get_last_starting_project(lines):
 
 
 def get_last_starting_WU_project_and_core(lines):
-	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
 			if ':Project:' in line:
@@ -210,7 +210,7 @@ def get_last_starting_WU_project_and_core(lines):
 
 
 def get_last_starting_pid(lines):
-	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx+':Core PID:' in line:
 			pid = line.split(':Core PID:')[1].strip()
@@ -221,7 +221,7 @@ def get_last_starting_pid(lines):
 
 
 def get_last_starting_WU_id(lines):
-	WUxxFSxx = get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line:
 			if 'Unit:' in line:
@@ -237,9 +237,9 @@ def get_core_WUxxFSxx(line):
 	return core,wuxx,slot
 #end def
 
-def get_last_starting_WU_time_and_steps(lines):
+def get_WU_time_and_steps(lines):
 	x={}
-	WUxxFSxx=get_last_starting_WUxxFSxx(lines[0])
+	WUxxFSxx=get_WUxxFSxx(lines[0])
 	for line in lines:
 		if (WUxxFSxx in line) and ('out of' in line) and ('steps' in line):
 			t,tmp = line.split(':'+WUxxFSxx+':')
@@ -583,7 +583,7 @@ def do_slot_log(lines,  user,team, os_info):
 	#wu_id=get_last_starting_WU_id(lines)
 	#print get_info_by_id(wu_id,lines)
 	
-	map_time_steps = get_last_starting_WU_time_and_steps(lines)
+	map_time_steps = get_WU_time_and_steps(lines)
 	#print( 'map_time_steps len:',len(map_time_steps) )  #debug
 
 	if len(map_time_steps) < 5 : 
