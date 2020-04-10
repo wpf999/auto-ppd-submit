@@ -54,21 +54,6 @@ def read_log(fah_log):
 	return contents
 #end def
 
-def get_os_info_v0(log_lines):
-	for line in log_lines:
-		if 'OS:' in line:
-			os = line.split('OS:')[1].split()
-			if os[0]=='Linux':
-				os_name = os[0]
-			else:
-				os_name = os[0]+'\x20'+os[1]
-		
-		if 'OS Arch:' in line:
-			arch=line.split('OS Arch:')[1]
-			break
-			
-	return { 'name':os_name.strip(),  'arch':arch.strip() }
-#end def
 
 def get_os_info():
 	uname = platform.uname()
