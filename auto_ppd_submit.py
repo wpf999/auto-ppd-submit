@@ -119,12 +119,12 @@ def get_config(lines):
 		config_xml += cfg_lines[i].lstrip('0123456789:')
 
 	user,team = get_user_and_team(config_xml)
-	n_slots = get_num_slots(config_xml)
+	num_slots = get_num_slots(config_xml)
 
 	return {
 		'user':user,
 		'team':team,
-		'num_slots':n_slots
+		'num_slots':num_slots
 	}
 #end def
 
