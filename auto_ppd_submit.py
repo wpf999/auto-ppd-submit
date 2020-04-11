@@ -688,7 +688,7 @@ FAH_GPU_CORES = ('0x15', '0x16', '0x17', '0x18', '0x19', '0x20', '0x21', '0x22')
 submit_db = set([])
 
 if __name__ == '__main__':
-	DEBUG = True
+	DEBUG = False
 	try:
 		init()
 		fah_log_file = search_fah_log()
