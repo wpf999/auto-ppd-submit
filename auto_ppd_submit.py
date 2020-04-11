@@ -390,32 +390,12 @@ def get_manho_os_table(html):
 #end def
 
 def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
-	
-	html=get_manho_html()
-	if html=='' :
-		return None
-	
-	gpu_table = get_manho_gpu_table(html)
-	os_table  = get_manho_os_table(html)
-
-	gpuname=gpu_info['name']   # gpu_info['name'] is an official GPU name
-	gpuname=gpuname.replace('\x20','').upper() # delete space char for 1660Ti ~ 1660 Ti
-	
-	# #手动处理特殊情况 
-	# if gpuname.endswith('SUPER') :
-	# 	gpuname = gpuname.replace('SUPER','S')   #manho's GPU name is not an official name 
-
-	if gpuname in gpu_table.keys():
-		gpuid = gpu_table[gpuname]
-	else:
-		raise Exception( 'can not find your GPU id on fah.manho.org, exit...' )
-		
 		
 	core_ver    = core.strip('0x')
-	project_num = str(project_num)
 	tpf_min     = str(tpf_min)
 	tpf_sec     = str(tpf_sec)
-	
+
+	#################################################################
 	driver         = gpu_info['driver']
 	graphics_clock = gpu_info['graphics_clock'].strip('MHz').strip()
 	mem_clock      = gpu_info['mem_clock'].strip('MHz').strip()
@@ -437,6 +417,28 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 		pci_gen    = '2.0'
 	if '3'==pci_gen:
 		pci_gen    = '3.0'
+	#################################################################
+	
+
+	html=get_manho_html()
+	if html=='' :
+		return None
+	
+	gpu_table = get_manho_gpu_table(html)
+	os_table  = get_manho_os_table(html)
+
+	gpuname=gpu_info['name']   # gpu_info['name'] is an official GPU name
+	gpuname=gpuname.replace('\x20','').upper() # delete space char for 1660Ti ~ 1660 Ti
+	
+	# #手动处理特殊情况 
+	# if gpuname.endswith('SUPER') :
+	# 	gpuname = gpuname.replace('SUPER','S')   #manho's GPU name is not an official name 
+
+	if gpuname in gpu_table.keys():
+		gpuid = gpu_table[gpuname]
+	else:
+		raise Exception( 'can not find your GPU id on fah.manho.org, exit...' )
+		
 	
 	if os_info['name'] in os_table.keys():
 		os_id=os_table[ os_info['name'] ]
@@ -515,7 +517,7 @@ def post_form(form_para):
 
 #end def
 
-def do_slot_log(lines,  user,team, os_info):
+def do_slot_log(lines, user, team, os_info, gpu_info_list):
 	global FAH_GPU_CORES
 	global submit_db
 	
@@ -545,13 +547,6 @@ def do_slot_log(lines,  user,team, os_info):
 	print('%15s'%'progress:'   , [step0,stepx] )
 	print('%15s'%'running sec:', [t0,tx] )
 	print('%15s'%'TPF:',tpf_min,'min',tpf_sec,'sec')
-
-
-	gpu_info_list = get_gpu_info()
-
-	if len(gpu_info_list) < 1:
-		print('There is no GPU in your computer!')
-		return -1
 
 	if len(gpu_info_list) == 1 :     #only cope with one GPU
 		gpu_info = gpu_info_list[0]
@@ -600,25 +595,23 @@ def do_log(filename):
 
 	lines = read_log(filename)
 
-	config = get_config(lines)
-	user,team,n_slots = config['user'], config['team'], config['num_slots']
+	config  = get_config(lines)
+	user    = config['user']
+	team    = config['team']
+	n_slots = config['num_slots']
 
-	n_GPUs, _  = get_num_gpus(lines)
-	if n_GPUs <= 0: 
-		raise Exception('No GPU in your system! exit...')
-
-	#gpu_list      = get_gpu_list(lines)
 	os_info       = get_os_info( )
 	WU_index_list = get_WU_index_list(lines)
 
 	print('%15s'%'User:'       , user )
 	print('%15s'%'Team:'       , team )
 	print('%15s'%'Total Slots:', n_slots )
-	print('%15s'%'Total GPUs:' , n_GPUs )
-	#print('%15s'%'GPU List:'   , gpu_list )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
 	print('%15s'%'WU index:' , WU_index_list )
+
+	gpu_info_list = get_gpu_info()
+	if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
 
 	s=set([])
 	
@@ -628,7 +621,7 @@ def do_log(filename):
 			continue #only watch the last task for each slot
 		else:
 			s.add(slot)
-			do_slot_log(lines[index:],user,team,os_info)
+			do_slot_log(lines[index:],user,team,os_info, gpu_info_list)
 #end def
 
 def init():
@@ -679,6 +672,7 @@ FAH_GPU_CORES = ('0x15', '0x16', '0x17', '0x18', '0x19', '0x20', '0x21', '0x22')
 submit_db = set([])
 
 if __name__ == '__main__':
+	DEBUG = True
 	try:
 		init()
 		fah_log_file = search_fah_log()
@@ -690,7 +684,7 @@ if __name__ == '__main__':
 			print('-'*80)
 			print('\n\n')
 			sys.stdout.flush()
-			time.sleep(60)
+			time.sleep(60 if not DEBUG else 1)
 	except:
 			t, v, _ = sys.exc_info()
 			print(t, v)
