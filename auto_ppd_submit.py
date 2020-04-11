@@ -178,14 +178,6 @@ def get_WU_info(lines):
 	return -1 #some exception
 #end def
 
-def get_WU_UID(lines):
-	WUxxFSxx = get_WUxxFSxx(lines[0])
-	for line in lines:
-		if WUxxFSxx in line and ':Unit:' in line:
-				return line.split('Unit:')[1].strip()
-	return -1  # some exception
-#end def
-
 def get_WU_time_and_steps(lines):
 	x={}
 	WUxxFSxx=get_WUxxFSxx(lines[0])
