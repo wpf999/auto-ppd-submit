@@ -224,16 +224,17 @@ def compute_TPF(time_step_array):
 
 def get_nv_smi():
 
-	util_paths={}
-	util_paths[0] = r'/usr/bin/nvidia-smi'
-	util_paths[1] = str(os.getenv('SYSTEMDRIVE')) + r'\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe'
-	util_paths[2] = str(os.getenv('SYSTEMDRIVE')) + r'\Windows\System32\nvidia-smi.exe' 
+	util_paths=[
+		r'/usr/bin/nvidia-smi' ,
+		str(os.getenv('SYSTEMDRIVE')) + r'\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe' ,
+		str(os.getenv('SYSTEMDRIVE')) + r'\Windows\System32\nvidia-smi.exe' 
+	]
 	
 	util_cmd = ''
 	
-	for i in range( 0, len(util_paths) ):
-		if os.path.exists( util_paths[i] ):
-			util_cmd = util_paths[i]
+	for p in util_paths:
+		if os.path.exists(p) and os.path.isfile(p):
+			util_cmd = p
 			break
 	
 	if util_cmd != '' :
