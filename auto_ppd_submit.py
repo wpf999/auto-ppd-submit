@@ -633,12 +633,14 @@ def do_log(filename):
 	
 	for index in WU_index_list:
 		slot, _ = get_WU_slot(lines[index])
-		if slot in s:
-			if len(s) == n_slots:	break
-			continue #only watch the last task for each slot
-		else:
+		if slot not in s:
+			#only watch the last task for each slot
 			s.add(slot)
-			do_slot_log(lines[index:],user,team,os_info, gpu_info_list, manho_table)
+			do_slot_log(lines[index:],user,team,os_info, gpu_info_list, manho_table)	
+		
+		if len(s) == n_slots:
+			break
+			
 #end def
 
 def init():
