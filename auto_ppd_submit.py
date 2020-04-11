@@ -617,14 +617,14 @@ def do_log(filename):
 	print('%15s'%'Total Slots:', n_slots )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'WU index:' , WU_index_list )
+	print('%15s'%'WU index:'   , WU_index_list )
 
 	gpu_info_list = get_gpu_info()
 	if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
 
 	manho_table = get_manho_table()
 	if manho_table is None: 
-		print('We will try to submit result later')
+		print('can not get manho table, try to submit result later')
 		return
 
 	s=set([])
