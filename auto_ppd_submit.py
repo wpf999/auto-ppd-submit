@@ -29,6 +29,7 @@ except:
 	t,v,_ = sys.exc_info()
 	print(t,v)
 	print( 'press enter to exit...' )
+	print('$PATH:',os.getenv('PATH'))
 	sys.stdin.readline()
 	exit(-1)
 
@@ -118,9 +119,8 @@ def get_config(lines):
 	for i in range( 0, len(cfg_lines) ):
 		config_xml += cfg_lines[i].lstrip('0123456789:')
 
-	user,team = get_user_and_team(config_xml)
-	num_slots = get_num_slots(config_xml)
-
+	user,team,num_slots = parse_config_xml(config_xml)
+	
 	return {
 		'user':user,
 		'team':team,
@@ -128,24 +128,16 @@ def get_config(lines):
 	}
 #end def
 
-def get_user_and_team(config_xml):
+def parse_config_xml(config_xml):
 	
 	DOMTree = xml.dom.minidom.parseString(config_xml)
 	root = DOMTree.documentElement
 	user = root.getElementsByTagName('user')[0].getAttribute('v').strip()
 	team = root.getElementsByTagName('team')[0].getAttribute('v').strip()
-	#print( u, t )
-	return user,team
+	n_slots = len(root.getElementsByTagName('slot'))
+	return user,team,n_slots
 #end def
 
-def get_num_slots(config_xml):
-	
-	DOMTree = xml.dom.minidom.parseString(config_xml)
-	root = DOMTree.documentElement
-	n_slots = len(root.getElementsByTagName('slot'))
-	return n_slots
-#end def
-	
 def get_WU_index_list(log_lines):
 	c=len(log_lines)
 	index_list=[]
