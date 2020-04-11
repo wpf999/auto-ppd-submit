@@ -156,26 +156,36 @@ def get_WU_slot(line):
 	return slot_id,int(slot_id)
 #end def
 
-def get_WU_core_PID(lines):
-	WUxxFSxx = get_WUxxFSxx(lines[0])
-	for line in lines:
-		if WUxxFSxx in line and ':Core PID:' in line:
-			pid = line.split(':Core PID:')[1].strip()
-			#print 'pid',pid
-			return int(pid)
-	return -1  # some exception
-#end def
-
 def get_WU_info(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
+	slot,_ = get_WU_slot(lines[0])
+	found = 0
 	for line in lines:
+		#get WU core PID
+		if WUxxFSxx in line and ':Core PID:' in line:
+			core_PID = line.split(':Core PID:')[1].strip()
+			core_PID = int(core_PID)
+			found += 1
+		
+		#get WU core and project
 		if WUxxFSxx in line and ':Project:' in line:
 			tmp = line.split(':Project:')
 			core = tmp[0].split(':')[-1]
 			project_num = tmp[1].split()[0]
 			project     = tmp[1].strip()
-			return core, int(project_num), project
-	return -1 #some exception
+			found += 1
+			break
+	
+	if found == 2 :
+		return {
+			'slot':slot,
+			'core_PID':core_PID,
+			'core':core, 
+			'project_num':project_num, 
+			'project':project
+		}
+	else:
+		raise Exception('WU info not found') #some exception
 #end def
 
 def get_WU_time_and_steps(lines):
@@ -513,7 +523,8 @@ def do_slot_log(lines,  user,team, os_info):
 	global submit_db
 	
 	slot, _ = get_WU_slot(lines[0])
-	core, project_num, project = get_WU_info(lines)
+	WU_info = get_WU_info(lines)
+	core, project_num, project = WU_info['core'],WU_info['project_num'],WU_info['project']
 	
 	if core not in FAH_GPU_CORES :
 			return #skip cpu slot
@@ -564,7 +575,7 @@ def do_slot_log(lines,  user,team, os_info):
 	else:
 		#'需要找到本slot对应的GPU'
 		#'按PID寻找GPU'
-		core_PID = get_WU_core_PID(lines)
+		core_PID = WU_info['core_PID']
 		gpu_info = None
 	
 		for ginfo in gpu_info_list:
