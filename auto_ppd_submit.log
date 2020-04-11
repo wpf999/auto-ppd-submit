@@ -1,0 +1,6 @@
+[2020-04-11 12:39:38,787] root:INFO: ===========Submit  OK ! ===========
+[2020-04-11 12:39:38,787] root:INFO: {'user': 'Keyco', 'team': '3213', 'gpuid': '20', 'corever': '22', 'projectnum': '14415', 'tpfmin': '1', 'tpfsec': '9', 'driver': '441.41', 'gpucoreclock': '0000', 'gpumemclock': '0000', 'pciever': '3.0', 'pciespeed': '16', 'os': '6', 'arch': '64', 'submit': '', 'auto': '1'}
+[2020-04-11 12:39:41,105] root:INFO: ===========Submit  OK ! ===========
+[2020-04-11 12:39:41,105] root:INFO: {'user': 'Keyco', 'team': '3213', 'gpuid': '20', 'corever': '22', 'projectnum': '14543', 'tpfmin': '1', 'tpfsec': '4', 'driver': '441.41', 'gpucoreclock': '0000', 'gpumemclock': '0000', 'pciever': '3.0', 'pciespeed': '16', 'os': '6', 'arch': '64', 'submit': '', 'auto': '1'}
+[2020-04-11 12:39:44,922] root:INFO: ===========Submit  OK ! ===========
+[2020-04-11 12:39:44,922] root:INFO: {'user': 'Keyco', 'team': '3213', 'gpuid': '20', 'corever': '22', 'projectnum': '14549', 'tpfmin': '1', 'tpfsec': '0', 'driver': '441.41', 'gpucoreclock': '0000', 'gpumemclock': '0000', 'pciever': '3.0', 'pciespeed': '16', 'os': '6', 'arch': '64', 'submit': '', 'auto': '1'}
