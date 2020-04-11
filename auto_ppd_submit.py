@@ -525,12 +525,18 @@ def post_form(form_para):
 #end def
 
 def do_slot_log(lines,  user,team, os_info):
+	global FAH_GPU_CORES
 	global submit_db
 	
 	slot, _ = get_WU_slot(lines[0])
 	core = get_WU_core(lines)
 	project_num, project = get_WU_project(lines)
 	
+	if core not in FAH_GPU_CORES :
+			continue #skip cpu slot
+	
+	print('='*60)
+	print('%15s'%'index:', index )
 	print('%15s'%'Slot ID:',slot)
 	print('%15s'%'Core:',core)
 	print('%15s'%'Project:',project_num)
@@ -615,7 +621,6 @@ def do_slot_log(lines,  user,team, os_info):
 #end def
 
 def do_log(filename):
-	global FAH_GPU_CORES
 
 	lines = read_log(filename)
 
@@ -642,17 +647,11 @@ def do_log(filename):
 	s=set([])
 	
 	for index in WU_index_list:
-		core = get_WU_core(lines[index:])
-		if core not in FAH_GPU_CORES :
-			continue #skip cpu slot
-		
 		slot, _ = get_WU_slot(lines[index])
 		if slot in s:
 			continue #only watch the last task for each slot
 		else:
 			s.add(slot)
-			print('='*60)
-			print('%15s'%'index:', index )
 			do_slot_log(lines[index:],user,team,os_info)
 #end def
 
