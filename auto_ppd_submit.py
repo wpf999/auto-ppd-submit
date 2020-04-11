@@ -50,7 +50,7 @@ def read_log(fah_log):
 	
 	contents = []
 	for b in bytes_list:
-		contents.append( b.decode('UTF-8', errors='ignore') )
+		contents.append( b.decode('UTF-8', errors='ignore').strip() )
 	#print(contents)
 	#print(type(contents), len(contents)) #debug
 	return contents
@@ -120,7 +120,7 @@ def get_WU_index_list(log_lines):
 	c=len(log_lines)
 	index_list=[]
 	for i in range(c-1, 0, -1):
-		if log_lines[i].strip().endswith('Starting'):
+		if log_lines[i].endswith('Starting'):
 			index_list.append(i)
 	return index_list
 #end def
