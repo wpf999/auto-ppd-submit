@@ -219,7 +219,7 @@ def compute_TPF(time_step_array):
 	tpf_sec = tpf%60
 
 	return step0,stepx,t0,tx,tpf_min,tpf_sec
-
+#end def
 
 
 def get_nv_smi():
@@ -675,16 +675,16 @@ def init():
 #end def
 
 def search_fah_log():
-	log_paths = {}
-	log_paths[0] = 'log.txt' #current dir
-	log_paths[1] = str(os.getenv('SYSTEMDRIVE')) + r'\Program Files (x86)\FAHClient\log.txt'
-	log_paths[2] = str(os.getenv('SYSTEMDRIVE')) + r'\Users\root\AppData\Roaming\FAHClient\log.txt'
+	log_paths = [
+		'log.txt' , #current dir
+		str(os.getenv('SYSTEMDRIVE')) + r'\Program Files (x86)\FAHClient\log.txt' ,
+		str(os.getenv('SYSTEMDRIVE')) + r'\Users\root\AppData\Roaming\FAHClient\log.txt'
+	]
 	
 
-	for i in range(0, len(log_paths)) :
-		x = log_paths[i]
-		if  os.path.exists( x ) and os.path.isfile( x ) :
-			return x
+	for p in log_paths:
+		if  os.path.exists( p ) and os.path.isfile( p ) :
+			return p
 
 	print('#'*60)
 	print('')
