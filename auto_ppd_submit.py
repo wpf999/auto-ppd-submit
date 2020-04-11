@@ -166,23 +166,15 @@ def get_WU_core_PID(lines):
 	return -1  # some exception
 #end def
 
-def get_WU_core(lines):
-	WUxxFSxx = get_WUxxFSxx(lines[0])
-	for line in lines:
-		if (WUxxFSxx in line) and (':Project:' in line) :
-			core = line.split(':Project:')[0].split(':')[-1]
-			return core
-	return -1 #some exception
-#end def
-
-def get_WU_project(lines):
+def get_WU_info(lines):
 	WUxxFSxx = get_WUxxFSxx(lines[0])
 	for line in lines:
 		if WUxxFSxx in line and ':Project:' in line:
 			tmp = line.split(':Project:')
+			core = tmp[0].split(':')[-1]
 			project_num = tmp[1].split()[0]
 			project     = tmp[1].strip()
-			return int(project_num), project
+			return core, int(project_num), project
 	return -1 #some exception
 #end def
 
@@ -529,14 +521,12 @@ def do_slot_log(lines,  user,team, os_info):
 	global submit_db
 	
 	slot, _ = get_WU_slot(lines[0])
-	core = get_WU_core(lines)
-	project_num, project = get_WU_project(lines)
+	core, project_num, project = get_WU_info(lines)
 	
 	if core not in FAH_GPU_CORES :
-			continue #skip cpu slot
+			return #skip cpu slot
 	
 	print('='*60)
-	print('%15s'%'index:', index )
 	print('%15s'%'Slot ID:',slot)
 	print('%15s'%'Core:',core)
 	print('%15s'%'Project:',project_num)
