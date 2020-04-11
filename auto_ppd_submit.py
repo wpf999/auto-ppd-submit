@@ -189,7 +189,7 @@ def get_WU_info(lines):
 #end def
 
 def get_WU_time_and_steps(lines):
-	x={}
+	x=[]
 	WUxxFSxx=get_WUxxFSxx(lines[0])
 	for line in lines:
 		if (WUxxFSxx in line) and ('out of' in line) and ('steps' in line):
@@ -199,9 +199,28 @@ def get_WU_time_and_steps(lines):
 			#print(t) #debug
 			step = tmp.split('steps')[1].strip().strip('(%)')
 			step = int(step)
-			x[step] = t
+			x.append((step, t))
 	return x
 #end def
+
+def compute_TPF(time_step_array):
+	if len(time_step_array) < 2: return 0,0,0,0,0,0
+	
+	step0,t0 = time_step_array[0]
+	stepx,tx = time_step_array[-1]
+	
+	#异常
+	if (tx-t0) < 0 : # next day
+		tx = tx + 24*3600
+
+	tpf = 1.0*(tx-t0)/(stepx-step0)
+	tpf = int ( round(tpf) )
+	tpf_min = tpf//60
+	tpf_sec = tpf%60
+
+	return step0,stepx,t0,tx,tpf_min,tpf_sec
+
+
 
 def get_nv_smi():
 
@@ -522,12 +541,14 @@ def do_slot_log(lines,  user,team, os_info):
 	global FAH_GPU_CORES
 	global submit_db
 	
-	slot, _ = get_WU_slot(lines[0])
 	WU_info = get_WU_info(lines)
-	core, project_num, project = WU_info['core'],WU_info['project_num'],WU_info['project']
+	slot = WU_info['slot']
+	core = WU_info['core']
+	project_num = WU_info['project_num']
+	project = WU_info['project']
 	
-	if core not in FAH_GPU_CORES :
-			return #skip cpu slot
+	if core not in FAH_GPU_CORES : 
+		return #skip cpu slot
 	
 	print('='*60)
 	print('%15s'%'Slot ID:',slot)
@@ -535,32 +556,16 @@ def do_slot_log(lines,  user,team, os_info):
 	print('%15s'%'Project:',project_num)
 	print('%15s'%'Project(RCG):',project) 
 	
-	#wu_id=get_last_starting_WU_id(lines)
-	#print get_info_by_id(wu_id,lines)
 	
-	map_time_steps = get_WU_time_and_steps(lines)
-	#print( 'map_time_steps len:',len(map_time_steps) )  #debug
+	time_step_array = get_WU_time_and_steps(lines)
 
-	if len(map_time_steps) < 5 : 
+	if len(time_step_array) < 5 : 
 		print('data is not enough! skip...')
 		return -1
-	
-	step_min = min(map_time_steps.keys())
-	step_max = max(map_time_steps.keys())
-	t_min = map_time_steps[step_min]
-	t_max = map_time_steps[step_max]
-	
-	#异常
-	if (t_max-t_min) < 0 : # next day
-		t_max = t_max + 24*3600
 
-	tpf = 1.0*(t_max-t_min)/(step_max-step_min)
-	tpf = int ( round(tpf) )
-	tpf_min = tpf//60
-	tpf_sec = tpf%60
-
-	print('%15s'%'progress:'   , [step_min,step_max] )
-	print('%15s'%'running sec:', [t_min,t_max] )
+	step0,stepx,t0,tx,tpf_min,tpf_sec = compute_TPF(time_step_array)
+	print('%15s'%'progress:'   , [step0,stepx] )
+	print('%15s'%'running sec:', [t0,tx] )
 	print('%15s'%'TPF:',tpf_min,'min',tpf_sec,'sec')
 
 
