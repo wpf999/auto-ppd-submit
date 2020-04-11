@@ -244,7 +244,7 @@ def get_nv_smi():
 		return util_cmd
 	else:
 		raise Exception( 'can not find nvidia-smi! exit...' )
-		
+
 #end def 
 
 def get_nv_gpu_info():
@@ -291,7 +291,8 @@ def get_nv_gpu_info():
 		#n/a处理
 		if  ( graphics_clock=='N/A' ) or ( mem_clock=='N/A' ):
 			#graphics_clock,mem_clock = nvapi_detect_clock(pci_bus)
-			raise Exception('can not detect GPU clock')
+			print('can not detect GPU clock')
+			#raise Exception('can not detect GPU clock')
 			
 		#end if
 		
@@ -444,10 +445,9 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 	pci_speed      = gpu_info['pci_speed'].strip('x').strip()
 	
 	#deal with N/A value
-	if graphics_clock=='N/A':
-		graphics_clock='0000'
-	if mem_clock=='N/A':
-		mem_clock='0000'
+	if graphics_clock=='N/A' or mem_clock=='N/A':
+		return None
+	
 	if pci_gen=='N/A':
 		pci_gen='3'        #when the value is N/A, assume PCIE3.0*16
 	if pci_speed=='N/A':
