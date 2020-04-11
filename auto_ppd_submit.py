@@ -91,11 +91,9 @@ def get_config(lines):
 	if i_begin==i_end:
 		raise Exception('can not find <config>')
 	
-	cfg_lines=lines[i_begin:i_end+1]
-
 	config_xml = ''
-	for i in range( 0, len(cfg_lines) ):
-		config_xml += cfg_lines[i].lstrip('0123456789:')
+	for i in range( i_begin, i_end+1 ):
+		config_xml += lines[i].lstrip('0123456789:')
 
 	user,team,num_slots = parse_config_xml(config_xml)
 	
