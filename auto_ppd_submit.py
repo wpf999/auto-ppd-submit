@@ -389,7 +389,23 @@ def get_manho_os_table(html):
 
 #end def
 
-def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
+def get_manho_table():
+	html = get_manho_html()
+	if html == '' :
+		return None
+	
+	gpu_table = get_manho_gpu_table(html)
+	os_table  = get_manho_os_table(html)
+
+	return {
+		'gpu_table':gpu_table,
+		'os_table':os_table
+	}
+
+#end def
+
+
+def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info, manho_table ):
 		
 	core_ver    = core.strip('0x')
 	tpf_min     = str(tpf_min)
@@ -419,13 +435,8 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info ):
 		pci_gen    = '3.0'
 	#################################################################
 	
-
-	html=get_manho_html()
-	if html=='' :
-		return None
-	
-	gpu_table = get_manho_gpu_table(html)
-	os_table  = get_manho_os_table(html)
+	gpu_table = manho_table['gpu_table']
+	os_table  = manho_table['os_table']
 
 	gpuname=gpu_info['name']   # gpu_info['name'] is an official GPU name
 	gpuname=gpuname.replace('\x20','').upper() # delete space char for 1660Ti ~ 1660 Ti
@@ -517,7 +528,7 @@ def post_form(form_para):
 
 #end def
 
-def do_slot_log(lines, user, team, os_info, gpu_info_list):
+def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	global FAH_GPU_CORES
 	global submit_db
 	
@@ -580,7 +591,7 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list):
 		print( 'No results need to be submitted. Sleeping...' )
 		return 0
 	else:
-		formXXX = fill_form(user,team,core,project_num,tpf_min,tpf_sec ,gpu_info, os_info)
+		formXXX = fill_form(user,team,core,project_num,tpf_min,tpf_sec ,gpu_info, os_info, manho_table)
 		ret     = post_form( formXXX ) #send to fah.manho.org
 		if ret==0 : #submit OK!
 			submit_db.add(project)
@@ -613,6 +624,11 @@ def do_log(filename):
 	gpu_info_list = get_gpu_info()
 	if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
 
+	manho_table = get_manho_table()
+	if manho_table is None: 
+		print('We will try to submit result later')
+		return
+
 	s=set([])
 	
 	for index in WU_index_list:
@@ -621,7 +637,7 @@ def do_log(filename):
 			continue #only watch the last task for each slot
 		else:
 			s.add(slot)
-			do_slot_log(lines[index:],user,team,os_info, gpu_info_list)
+			do_slot_log(lines[index:],user,team,os_info, gpu_info_list, manho_table)
 #end def
 
 def init():
