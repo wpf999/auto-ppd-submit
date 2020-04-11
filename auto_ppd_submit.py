@@ -8,6 +8,7 @@
 # release date: 20200407   #fix bug in function get_gpu_list
 # release date: 20200408   #fix bug for os name map
 # release date: 20200410   #refine
+# release date: 20200411   #delete unused function
 
 import sys
 if sys.version_info.major != 3 :
@@ -49,7 +50,7 @@ def read_log(fah_log):
 	
 	contents = []
 	for b in bytes_list:
-		contents.append( b.decode( 'UTF-8', errors='ignore') )
+		contents.append( b.decode('UTF-8', errors='ignore') )
 	#print(contents)
 	#print(type(contents), len(contents)) #debug
 	return contents
@@ -75,29 +76,6 @@ def get_num_gpus(log_lines):
 			gpu_count=line.split('GPUs:')[1]
 			return int(gpu_count.strip()), index
 	return -1,-1
-#end def
-
-def get_gpu_list(log_lines):
-	num_gpus,index = get_num_gpus(log_lines)
-	if num_gpus<=0 :
-		return []
-	
-	x = []
-	gpu = 0
-	i = index
-	while True:
-		i = i + 1 
-		lineX = log_lines[i]
-		if ( 'GPU' in lineX ) and ( '[' in lineX ) and ( ']' in lineX ):
-			tmp=lineX.split('GPU')[1].strip()
-			gpu_name=tmp.split('[')[1].split(']')[0]
-			x.append(gpu_name)
-			gpu = gpu + 1
-			if gpu == num_gpus :
-				break
-		if '*'*70 in lineX :   #end system section in the log 
-			break
-	return x
 #end def
 
 def get_config(lines):
@@ -259,7 +237,7 @@ def get_nv_gpu_info():
 	driver_version_str = driver_version[0].childNodes[0].data
 	#print driver_version_str    #debug
 	gpu_list=[]
-	gpus = root.getElementsByTagName('gpu') 
+	gpus = root.getElementsByTagName('gpu')
 	for gpu in gpus :
 		#gpu.hasAttribute('id')
 		product_name=gpu.getElementsByTagName('product_name')[0].childNodes[0].data
