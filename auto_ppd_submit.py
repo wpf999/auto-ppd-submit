@@ -634,6 +634,7 @@ def do_log(filename):
 	for index in WU_index_list:
 		slot, _ = get_WU_slot(lines[index])
 		if slot in s:
+			if len(s) == n_slots:	break
 			continue #only watch the last task for each slot
 		else:
 			s.add(slot)
