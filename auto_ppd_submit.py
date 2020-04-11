@@ -223,7 +223,6 @@ def compute_TPF(time_step_array):
 
 
 def get_nv_smi():
-
 	util_paths=[
 		r'/usr/bin/nvidia-smi' ,
 		str(os.getenv('SYSTEMDRIVE')) + r'\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe' ,
@@ -245,7 +244,7 @@ def get_nv_smi():
 		return util_cmd
 	else:
 		raise Exception( 'can not find nvidia-smi! exit...' )
-	
+		
 #end def 
 
 def get_nv_gpu_info():
@@ -682,7 +681,6 @@ def search_fah_log():
 		str(os.getenv('SYSTEMDRIVE')) + r'\Users\root\AppData\Roaming\FAHClient\log.txt'
 	]
 	
-
 	for p in log_paths:
 		if  os.path.exists( p ) and os.path.isfile( p ) :
 			return p
