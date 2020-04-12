@@ -103,41 +103,44 @@ def get_WU_index_list(log_lines):
 	c=len(log_lines)
 	index_list=[]
 	for i in range(c-1, 0, -1):
-		if log_lines[i].endswith('Starting'):
+		if log_lines[i].split(':')[-1] == 'Starting':
 			index_list.append(i)
 	return index_list
 #end def
 
 def get_WUxxFSxx(line):
 	#return line[9:18]
-	return line.lstrip('0123456789:').rstrip(':Starting')
+	item = line.split(':')
+	WUxx = item[3]
+	FSxx = item[4]
+	return WUxx,FSxx
 #end def
 	
 def get_WU_slot(line):
-	slot_id=get_WUxxFSxx(line).split('FS')[1]
+	_, FSxx = get_WUxxFSxx(line)
+	slot_id = FSxx.lstrip('FS')
 	return slot_id,int(slot_id)
 #end def
 
 def get_WU_info(lines):
-	WUxxFSxx = get_WUxxFSxx(lines[0])
+	WUxx, FSxx = get_WUxxFSxx(lines[0])
 	slot,_ = get_WU_slot(lines[0])
 	found = 0
 	for line in lines:
+		item = line.split(':')
 		#get WU core PID
-		if (WUxxFSxx in line) and (':Core PID:' in line):
-			core_PID = line.split(':Core PID:')[1].strip()
-			core_PID = int(core_PID)
+		if ( item[-2] == 'Core PID') and (item[3] == WUxx) and (item[4] == FSxx):
+			core_PID = int(item[-1])
 			found += 1
 		
 		#get WU core and project
-		if (WUxxFSxx in line) and (':Project:' in line):
-			tmp = line.split(':Project:')
-			core = tmp[0].split(':')[-1]
-			project_num = tmp[1].split()[0]
-			project     = tmp[1].strip()
+		if (item[-2] =='Project') and (item[3] == WUxx) and (item[4] == FSxx):
+			core = item[-3]
+			project = item[-1]
+			project_num = item[-1].split()[0]
 			found += 1
 			break
-	
+
 	if found == 2 :
 		return {
 			'slot':slot,
@@ -152,14 +155,17 @@ def get_WU_info(lines):
 
 def get_WU_time_and_steps(lines):
 	x=[]
-	WUxxFSxx=get_WUxxFSxx(lines[0])
+	WUxx,FSxx=get_WUxxFSxx(lines[0])
 	for line in lines:
-		if (WUxxFSxx in line) and ('out of' in line) and ('steps' in line):
-			tmp = line.split(':')
-			t = 3600*int(tmp[0]) + 60*int(tmp[1]) + int(tmp[2])
-			#print(t) #debug
-			#tmp[-1] like 'Completed 6000000 out of 8000000 steps (75%)'
-			step = tmp[-1].split()[-1].strip('(%)')
+		item=line.split(':')
+		# item[-1] like 'Completed 6000000 out of 8000000 steps (75%)'
+		if ('out of' in item[-1]) and ('steps' in item[-1]) and (item[3] == WUxx) and (item[4] == FSxx):
+			hour = int(item[0])
+			min  = int(item[1])
+			sec  = int(item[2])
+			t = 3600*hour + 60*min + sec
+			
+			step = item[-1].split()[-1].strip('(%)')
 			step = int(step)
 			x.append((step, t))
 	return x
