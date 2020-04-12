@@ -10,6 +10,8 @@
 # release date: 20200410   #refine
 # release date: 20200411   #delete unused function
 # release date: 20200412   #delete unused function
+# release date: 20200412   #improve string matching for fah log
+
 
 import sys
 if sys.version_info.major != 3 :
