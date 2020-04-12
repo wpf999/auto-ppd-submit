@@ -602,15 +602,15 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 
 def do_log(filename):
 
-	lines = read_log(filename)
+	log_lines = read_log(filename)
 
-	config  = get_config(lines)
+	config  = get_config(log_lines)
 	user    = config['user']
 	team    = config['team']
 	n_slots = config['num_slots']
 
 	os_info       = get_os_info( )
-	WU_index_list = get_WU_index_list(lines)
+	WU_index_list = get_WU_index_list(log_lines)
 
 	print('%15s'%'User:'       , user )
 	print('%15s'%'Team:'       , team )
@@ -627,14 +627,14 @@ def do_log(filename):
 		print('can not get manho table, try to submit result later')
 		return
 
-	s=set([])
+	s=set()
 	
 	for index in WU_index_list:
-		slot, _ = get_WU_slot(lines[index])
+		slot, _ = get_WU_slot(log_lines[index])
 		if slot not in s:
 			#only watch the last task for each slot
 			s.add(slot)
-			do_slot_log(lines[index:],user,team,os_info, gpu_info_list, manho_table)	
+			do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)	
 		
 		if len(s) == n_slots:
 			break
