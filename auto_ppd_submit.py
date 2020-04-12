@@ -519,7 +519,7 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	project = WU_info['project']
 	
 	if core not in FAH_GPU_CORES : 
-		return #skip cpu slot
+		return -2 #skip cpu slot
 	
 	print('='*60)
 	print('%15s'%'Slot ID:',slot)
