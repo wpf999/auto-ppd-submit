@@ -67,9 +67,10 @@ def get_config(lines):
 	c=len(lines)
 	i_begin=i_end=0
 	for i in range(c-1, 0, -1):
-		if '</config>' == lines[i].lstrip('0123456789:').strip():
+		item = lines[i].split(':')
+		if '</config>' == item[-1].strip():
 			i_end=i
-		if '<config>' == lines[i].lstrip('0123456789:').strip():
+		if '<config>' == item[-1].strip():
 			i_begin=i
 			break
 	
@@ -78,7 +79,7 @@ def get_config(lines):
 	
 	config_xml = ''
 	for i in range( i_begin, i_end+1 ):
-		config_xml += lines[i].lstrip('0123456789:')
+		config_xml += lines[i].split(':')[-1]
 
 	user,team,num_slots = parse_config_xml(config_xml)
 	
@@ -129,14 +130,16 @@ def get_WU_info(lines):
 	for line in lines:
 		item = line.split(':')
 		#get WU core PID
-		if ( item[-2] == 'Core PID') and (item[3] == WUxx) and (item[4] == FSxx):
+		# it likes '06:32:23:WU02:FS04:Core PID:3920'
+		if (len(item)==7) and ( item[-2] == 'Core PID') and (item[3] == WUxx) and (item[4] == FSxx):
 			core_PID = int(item[-1])
 			found += 1
 		
 		#get WU core and project
-		if (item[-2] =='Project') and (item[3] == WUxx) and (item[4] == FSxx):
+		# it likes '06:32:23:WU02:FS04:0x22:Project: 14543 (Run 0, Clone 1319, Gen 22)'
+		if (len(item)==8) and (item[-2] =='Project') and (item[3] == WUxx) and (item[4] == FSxx):
 			core = item[-3]
-			project = item[-1]
+			project = item[-1].strip()
 			project_num = item[-1].split()[0]
 			found += 1
 			break
@@ -158,8 +161,8 @@ def get_WU_time_and_steps(lines):
 	WUxx,FSxx=get_WUxxFSxx(lines[0])
 	for line in lines:
 		item=line.split(':')
-		# item[-1] like 'Completed 6000000 out of 8000000 steps (75%)'
-		if ('out of' in item[-1]) and ('steps' in item[-1]) and (item[3] == WUxx) and (item[4] == FSxx):
+		# item[-1] likes 'Completed 6000000 out of 8000000 steps (75%)'
+		if (len(item)==7) and ('out of' in item[-1]) and ('steps' in item[-1]) and (item[3] == WUxx) and (item[4] == FSxx):
 			hour = int(item[0])
 			min  = int(item[1])
 			sec  = int(item[2])
@@ -393,7 +396,6 @@ def get_manho_table():
 	}
 
 #end def
-
 
 def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info, manho_table ):
 		
