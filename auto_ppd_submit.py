@@ -605,15 +605,18 @@ def do_log(filename):
 	############################################################################
 	print('-'*80)
 	print('Starting some check...')
-	print('--check GPU and its status...')
-	gpu_info_list = get_gpu_info()
-	if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
-
 	print('--check fah.manho.org...')
 	manho_table = get_manho_table()
 	if manho_table is None: 
-		print('can not get manho table, try to submit result later')
+		print('can not visit fah.manho.org, try to submit result later')
 		return
+	print('--check fah.manho.org: Done')
+	
+	print('--check GPU and its status...')
+	gpu_info_list = get_gpu_info()
+	if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
+	print('--check GPU and its status: Done')
+
 	############################################################################
 	print('Scanning fah log...')
 	print('-'*80)
