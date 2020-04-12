@@ -69,9 +69,9 @@ def get_config(lines):
 		item = lines[i].split(':')
 		if len(item) != 4:
 			continue
-		if '</config>' == item[3].strip():
+		if item[3] == '</config>':
 			i_end=i
-		if '<config>' == item[3].strip():
+		if item[3] == '<config>':
 			i_begin=i
 			break
 	
