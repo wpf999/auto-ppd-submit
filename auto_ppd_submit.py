@@ -349,15 +349,15 @@ def get_manho_gpu_table(html):
 	#print len(op_list)
 	#print op_list
 
-	map_gpuname_id = {}
+	map_gpuname_gpuid = {}
 	for hh in op_list:
 		tmp = hh.split('>')
 		gpuname = tmp[1].strip().replace('\x20','').upper()
 		gpuid   = tmp[0].split('=')[1].strip().strip('"')
-		map_gpuname_id[gpuname] = gpuid
+		map_gpuname_gpuid[gpuname] = gpuid
 
 	#print( map_gpuname_id ) #debug
-	return map_gpuname_id 
+	return map_gpuname_gpuid 
 #end def
 
 def get_manho_os_table(html):
