@@ -35,12 +35,18 @@ except:
 	sys.stdin.readline()
 	exit(-1)
 
-def hms_to_sec(s):
-	#s[0,1]:s[3,4]:s[6,7]
-	hour = int( s[0:2] )
-	min  = int( s[3:5] )
-	sec  = int( s[6:8] )
-	return 3600*hour + 60*min + sec
+def get_os_info():
+	uname = platform.uname()
+	os_name = uname.system + uname.release
+	if uname.system.upper() == 'Windows'.upper():
+		os_name = uname.system + uname.release
+	else:
+		os_name = uname.system
+
+	return {
+		'name':os_name ,
+		'arch':uname.machine
+	}
 #end def
 
 def read_log(fah_log):
@@ -55,20 +61,6 @@ def read_log(fah_log):
 	#print(contents)
 	#print(type(contents), len(contents)) #debug
 	return contents
-#end def
-
-def get_os_info():
-	uname = platform.uname()
-	os_name = uname.system + uname.release
-	if uname.system.upper() == 'Windows'.upper():
-		os_name = uname.system + uname.release
-	else:
-		os_name = uname.system
-
-	return {
-		'name':os_name ,
-		'arch':uname.machine
-	}
 #end def
 
 def get_config(lines):
@@ -163,11 +155,11 @@ def get_WU_time_and_steps(lines):
 	WUxxFSxx=get_WUxxFSxx(lines[0])
 	for line in lines:
 		if (WUxxFSxx in line) and ('out of' in line) and ('steps' in line):
-			t,tmp = line.split(':'+WUxxFSxx+':')
+			tmp = line.split(':')
+			t = 3600*int(tmp[0]) + 60*int(tmp[1]) + int(tmp[2])
 			#print(t) #debug
-			t = hms_to_sec(t)
-			#print(t) #debug
-			step = tmp.split('steps')[1].strip().strip('(%)')
+			#tmp[-1] like 'Completed 6000000 out of 8000000 steps (75%)'
+			step = tmp[-1].split()[-1].strip('(%)')
 			step = int(step)
 			x.append((step, t))
 	return x
