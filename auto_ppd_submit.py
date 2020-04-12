@@ -121,7 +121,7 @@ def get_WUxxFSxx(line):
 	FSxx = item[4]
 	return WUxx,FSxx
 #end def
-	
+
 def get_WU_info(lines):
 	WUxx, FSxx = get_WUxxFSxx(lines[0])
 	slot = FSxx.strip('FS')
@@ -156,8 +156,8 @@ def get_WU_info(lines):
 #end def
 
 def get_WU_time_and_steps(lines):
-	x=[]
 	WUxx,FSxx=get_WUxxFSxx(lines[0])
+	x=[]
 	for line in lines:
 		item=line.split(':')
 		# item[-1] likes 'Completed 6000000 out of 8000000 steps (75%)'
@@ -190,7 +190,6 @@ def compute_TPF(time_step_array):
 
 	return step0,stepx,t0,tx,tpf_min,tpf_sec
 #end def
-
 
 def get_nv_smi():
 	util_paths=[
@@ -378,7 +377,6 @@ def get_manho_os_table(html):
 		x = item.replace('\x20','')
 		t[x] = os_table[item]
 	return t
-
 #end def
 
 def get_manho_table():
