@@ -81,7 +81,8 @@ def get_config(lines):
 	
 	config_xml = ''
 	for i in range( i_begin, i_end+1 ):
-		config_xml += lines[i].split(':')[-1]
+		item = lines[i].split(':')
+		config_xml += item[-1]
 
 	user,team,num_slots = parse_config_xml(config_xml)
 	
@@ -597,9 +598,11 @@ def do_log(filename):
 	############################################################################
 	print('-'*80)
 	print('Starting some check...')
+	print('--check GPU and its status...')
 	gpu_info_list = get_gpu_info()
 	if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
 
+	print('--check fah.manho.org...')
 	manho_table = get_manho_table()
 	if manho_table is None: 
 		print('can not get manho table, try to submit result later')
@@ -633,7 +636,7 @@ def do_log(filename):
 			do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
 
 		if len(s) == n_slots:	break
-		
+
 	print('-'*80)
 #end def
 
@@ -691,11 +694,8 @@ if __name__ == '__main__':
 		fah_log_file = search_fah_log()
 		# main loop
 		while True:
-			
 			do_log(fah_log_file)
-			print(time.asctime(time.localtime(time.time())))
-			
-			print('\n\n')
+			print(time.asctime(time.localtime(time.time())), '\n\n')
 			sys.stdout.flush()
 			time.sleep(60 if not DEBUG else 1)
 	except:
