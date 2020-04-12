@@ -116,7 +116,8 @@ def get_WU_index_list(log_lines):
 #end def
 
 def get_WUxxFSxx(line):
-	return line[9:18]
+	#return line[9:18]
+	return line.lstrip('0123456789:').rstrip(':Starting')
 #end def
 	
 def get_WU_slot(line):
@@ -130,13 +131,13 @@ def get_WU_info(lines):
 	found = 0
 	for line in lines:
 		#get WU core PID
-		if WUxxFSxx in line and ':Core PID:' in line:
+		if (WUxxFSxx in line) and (':Core PID:' in line):
 			core_PID = line.split(':Core PID:')[1].strip()
 			core_PID = int(core_PID)
 			found += 1
 		
 		#get WU core and project
-		if WUxxFSxx in line and ':Project:' in line:
+		if (WUxxFSxx in line) and (':Project:' in line):
 			tmp = line.split(':Project:')
 			core = tmp[0].split(':')[-1]
 			project_num = tmp[1].split()[0]
