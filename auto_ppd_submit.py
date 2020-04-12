@@ -278,8 +278,6 @@ def get_nv_gpu_info():
 		
 		gpu_list.append(ginfo)
 	#end for 
-	
-	#print gpu_list
 	return gpu_list
 #end def
 
@@ -335,7 +333,6 @@ def get_manho_html():
 		return ''
 
 	return html
-
 #end def
 
 def get_manho_gpu_table(html):
