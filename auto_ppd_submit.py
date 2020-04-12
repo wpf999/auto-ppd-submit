@@ -55,13 +55,10 @@ def read_log(fah_log):
 	f = open(fah_log, mode='rb')
 	bytes_list = f.readlines()
 	f.close()
-	#print(type(bytes_list), len(bytes_list)) #debug
 	
 	contents = []
 	for b in bytes_list:
 		contents.append( b.decode('UTF-8', errors='ignore').strip() )
-	#print(contents)
-	#print(type(contents), len(contents)) #debug
 	return contents
 #end def
 
@@ -70,8 +67,8 @@ def get_config(lines):
 	i_begin=i_end=0
 	for i in range(c-1, 0, -1):
 		item = lines[i].split(':')
-		if len(item) != 4: continue
-		
+		if len(item) != 4:
+			continue
 		if '</config>' == item[3].strip():
 			i_end=i
 		if '<config>' == item[3].strip():
@@ -396,13 +393,10 @@ def get_manho_table():
 		'gpu_table':gpu_table,
 		'os_table':os_table
 	}
-
 #end def
 
 def fill_form( user,team, WU_info, gpu_info, os_info, manho_table ):
-		
 	
-	#################################################################
 	driver         = gpu_info['driver']
 	graphics_clock = gpu_info['graphics_clock'].strip('MHz').strip()
 	mem_clock      = gpu_info['mem_clock'].strip('MHz').strip()
@@ -441,7 +435,6 @@ def fill_form( user,team, WU_info, gpu_info, os_info, manho_table ):
 		raise Exception( 'can not find your GPU id on fah.manho.org, exit...' )
 
 	#################################################################
-
 	os_table  = manho_table['os_table']
 
 	if os_info['name'] in os_table.keys():
@@ -458,7 +451,6 @@ def fill_form( user,team, WU_info, gpu_info, os_info, manho_table ):
 	project_num = WU_info['project_num']
 	tpf_min     = str(WU_info['tpf_min'])
 	tpf_sec     = str(WU_info['tpf_sec'])
-
 
 	return {'user':user,
 			'team':team,
