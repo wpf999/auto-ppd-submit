@@ -627,8 +627,6 @@ def do_log(filename):
 			s.add(FSxx)
 			do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
 
-		if len(s) == n_slots:	break
-
 	print('-'*80)
 #end def
 
