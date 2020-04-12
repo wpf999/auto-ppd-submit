@@ -70,14 +70,6 @@ def get_os_info():
 	}
 #end def
 
-def get_num_gpus(log_lines):
-	for index,line in enumerate(log_lines):
-		if 'GPUs:' in line:
-			gpu_count=line.split('GPUs:')[1]
-			return int(gpu_count.strip()), index
-	return -1,-1
-#end def
-
 def get_config(lines):
 	c=len(lines)
 	i_begin=i_end=0
