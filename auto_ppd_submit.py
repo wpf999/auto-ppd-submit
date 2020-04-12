@@ -129,14 +129,14 @@ def get_WU_info(lines):
 	time_step_array = []
 	for line in lines:
 		item = line.split(':')
-		# get WU core_PID
-		# it likes '06:32:23:WU02:FS04:Core PID:3920'
+		# get_WU_core_PID
+		# The line likes '06:32:23:WU02:FS04:Core PID:3920'
 		if (len(item)==7) and ( item[-2] == 'Core PID') and (item[3] == WUxx) and (item[4] == FSxx):
 			core_PID = int(item[-1])
 			found += 1
 		
-		# get WU core and project
-		# it likes '06:32:23:WU02:FS04:0x22:Project: 14543 (Run 0, Clone 1319, Gen 22)'
+		# get_WU_core_and_project
+		# The line likes '06:32:23:WU02:FS04:0x22:Project: 14543 (Run 0, Clone 1319, Gen 22)'
 		if (len(item)==8) and (item[-2] =='Project') and (item[3] == WUxx) and (item[4] == FSxx):
 			core = item[-3]
 			project = item[-1].strip()
@@ -144,7 +144,7 @@ def get_WU_info(lines):
 			found += 1
 		
 		# get_WU_time_and_steps
-		# it likes '05:54:27:WU04:FS03:0x22:Completed 4350000 out of 5000000 steps (87%)'
+		# The line likes '05:54:27:WU04:FS03:0x22:Completed 4350000 out of 5000000 steps (87%)'
 		# item[-1] likes 'Completed 6000000 out of 8000000 steps (75%)'
 		if (len(item)==7) and ('out of' in item[-1]) and ('steps' in item[-1]) and (item[3] == WUxx) and (item[4] == FSxx):
 			hour = int(item[0])
