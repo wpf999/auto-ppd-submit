@@ -397,12 +397,9 @@ def get_manho_table():
 
 #end def
 
-def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info, manho_table ):
+def fill_form( user,team, WU_info, gpu_info, os_info, manho_table ):
 		
-	core_ver    = core.strip('0x')
-	tpf_min     = str(tpf_min)
-	tpf_sec     = str(tpf_sec)
-
+	
 	#################################################################
 	driver         = gpu_info['driver']
 	graphics_clock = gpu_info['graphics_clock'].strip('MHz').strip()
@@ -428,7 +425,6 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info, m
 	#################################################################
 	
 	gpu_table = manho_table['gpu_table']
-	os_table  = manho_table['os_table']
 
 	gpuname=gpu_info['name']   # gpu_info['name'] is an official GPU name
 	gpuname=gpuname.replace('\x20','').upper() # delete space char for 1660Ti ~ 1660 Ti
@@ -441,19 +437,27 @@ def fill_form( user,team, core,project_num,tpf_min,tpf_sec, gpu_info, os_info, m
 		gpuid = gpu_table[gpuname]
 	else:
 		raise Exception( 'can not find your GPU id on fah.manho.org, exit...' )
-		
-	
+
+	#################################################################
+
+	os_table  = manho_table['os_table']
+
 	if os_info['name'] in os_table.keys():
 		os_id=os_table[ os_info['name'] ]
 	else:
 		raise Exception( 'can not find your OS id on fah.manho.org, exit...' )
-		
-
+	
 	if os_info['arch'] == 'AMD64' or os_info['arch']=='x86_64':
 		arch='64'
 	else:
 		arch='32'
-	
+	#################################################################
+	core_ver    = WU_info['core'].strip('0x')
+	project_num = WU_info['project_num']
+	tpf_min     = str(WU_info['tpf_min'])
+	tpf_sec     = str(WU_info['tpf_sec'])
+
+
 	return {'user':user,
 			'team':team,
 			'gpuid':gpuid,
@@ -538,8 +542,7 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	print('%15s'%'Core:',core)
 	print('%15s'%'Project:',project_num)
 	print('%15s'%'Project(RCG):',project) 
-	
-	
+		
 	time_step_array = get_WU_time_and_steps(lines)
 
 	if len(time_step_array) < 5 : 
@@ -550,6 +553,8 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	print('%15s'%'progress:'   , [step0,stepx] )
 	print('%15s'%'running sec:', [t0,tx] )
 	print('%15s'%'TPF:',tpf_min,'min',tpf_sec,'sec')
+	WU_info['tpf_min']=tpf_min
+	WU_info['tpf_sec']=tpf_sec
 
 	if len(gpu_info_list) == 1 :     #only cope with one GPU
 		gpu_info = gpu_info_list[0]
@@ -583,7 +588,7 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 		print( 'No results need to be submitted. Sleeping...' )
 		return 0
 	else:
-		formXXX = fill_form(user,team,core,project_num,tpf_min,tpf_sec ,gpu_info, os_info, manho_table)
+		formXXX = fill_form(user,team, WU_info, gpu_info, os_info, manho_table)
 		ret     = post_form( formXXX ) #send to fah.manho.org
 		if ret==0 : #submit OK!
 			submit_db.add(project)
