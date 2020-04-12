@@ -126,40 +126,25 @@ def get_WU_info(lines):
 	WUxx, FSxx = get_WUxxFSxx(lines[0])
 	slot = FSxx.strip('FS')
 	found = 0
+	time_step_array = []
 	for line in lines:
 		item = line.split(':')
-		#get WU core PID
+		# get WU core_PID
 		# it likes '06:32:23:WU02:FS04:Core PID:3920'
 		if (len(item)==7) and ( item[-2] == 'Core PID') and (item[3] == WUxx) and (item[4] == FSxx):
 			core_PID = int(item[-1])
 			found += 1
 		
-		#get WU core and project
+		# get WU core and project
 		# it likes '06:32:23:WU02:FS04:0x22:Project: 14543 (Run 0, Clone 1319, Gen 22)'
 		if (len(item)==8) and (item[-2] =='Project') and (item[3] == WUxx) and (item[4] == FSxx):
 			core = item[-3]
 			project = item[-1].strip()
 			project_num = item[-1].split()[0]
 			found += 1
-			break
-
-	if found == 2 :
-		return {
-			'slot':slot,
-			'core_PID':core_PID,
-			'core':core, 
-			'project_num':project_num, 
-			'project':project
-		}
-	else:
-		raise Exception('WU info not found') #some exception
-#end def
-
-def get_WU_time_and_steps(lines):
-	WUxx,FSxx=get_WUxxFSxx(lines[0])
-	x=[]
-	for line in lines:
-		item=line.split(':')
+		
+		# get_WU_time_and_steps
+		# it likes '05:54:27:WU04:FS03:0x22:Completed 4350000 out of 5000000 steps (87%)'
 		# item[-1] likes 'Completed 6000000 out of 8000000 steps (75%)'
 		if (len(item)==7) and ('out of' in item[-1]) and ('steps' in item[-1]) and (item[3] == WUxx) and (item[4] == FSxx):
 			hour = int(item[0])
@@ -169,8 +154,20 @@ def get_WU_time_and_steps(lines):
 			
 			step = item[-1].split()[-1].strip('(%)')
 			step = int(step)
-			x.append((step, t))
-	return x
+			time_step_array.append((step, t))
+	#end for
+
+	if found == 2 :
+		return {
+			'slot':slot,
+			'core_PID':core_PID,
+			'core':core, 
+			'project_num':project_num, 
+			'project':project,
+			'time_step_array':time_step_array
+		}
+	else:
+		raise Exception('WU info not found') #some exception
 #end def
 
 def compute_TPF(time_step_array):
@@ -530,7 +527,7 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	print('%15s'%'Project:',project_num)
 	print('%15s'%'Project(RCG):',project) 
 		
-	time_step_array = get_WU_time_and_steps(lines)
+	time_step_array = WU_info['time_step_array'] #get_WU_time_and_steps(lines)
 
 	if len(time_step_array) < 5 : 
 		print('data is not enough! skip...')
@@ -540,6 +537,7 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	print('%15s'%'progress:'   , [step0,stepx] )
 	print('%15s'%'running sec:', [t0,tx] )
 	print('%15s'%'TPF:',tpf_min,'min',tpf_sec,'sec')
+
 	WU_info['tpf_min']=tpf_min
 	WU_info['tpf_sec']=tpf_sec
 
@@ -580,7 +578,6 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 		if ret==0 : #submit OK!
 			submit_db.add(project)
 		
-		#print( '%15s'%'submit_db:', submit_db)
 		print('%15s'%'submit_db:', (project in submit_db))
 		return 0
 
@@ -624,10 +621,10 @@ def do_log(filename):
 	print('%15s'%'WU index:'   , WU_index_list )
 
 	s=set()
-	for index, _, FS in WU_index_list:
-		if FS not in s:
+	for index, _, FSxx in WU_index_list:
+		if FSxx not in s:
 			#only watch the last task for each slot
-			s.add(FS)
+			s.add(FSxx)
 			do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
 
 		if len(s) == n_slots:	break
