@@ -465,9 +465,7 @@ def fill_form( user,team, WU_info, gpu_info, os_info, manho_table ):
 			'os':os_id,
 			'arch':arch
 	}
-
 #end def
-
 
 def post_form(form_para):
 	if form_para == None:
