@@ -70,19 +70,21 @@ def get_config(lines):
 	i_begin=i_end=0
 	for i in range(c-1, 0, -1):
 		item = lines[i].split(':')
-		if '</config>' == item[-1].strip():
+		if len(item) != 4: continue
+		
+		if '</config>' == item[3].strip():
 			i_end=i
-		if '<config>' == item[-1].strip():
+		if '<config>' == item[3].strip():
 			i_begin=i
 			break
 	
 	if i_begin==i_end:
 		raise Exception('can not find <config>')
 	
-	config_xml = ''
+	config_xml = '' 
 	for i in range( i_begin, i_end+1 ):
-		item = lines[i].split(':')
-		config_xml += item[-1]
+		config_xml += lines[i].lstrip('1234567890:') 
+		#config line maybe contain ':', so split(':') method cause a bug
 
 	user,team,num_slots = parse_config_xml(config_xml)
 	
