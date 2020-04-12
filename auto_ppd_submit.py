@@ -68,7 +68,7 @@ def get_config(lines):
 	for i in range(c-1, 0, -1):
 		item = lines[i].split(':')
 		if len(item) != 4:
-			continue
+			continue  #提高搜寻效率
 		if item[3] == '</config>':
 			i_end=i
 		if item[3] == '<config>':
@@ -81,7 +81,7 @@ def get_config(lines):
 	config_xml = '' 
 	for i in range( i_begin, i_end+1 ):
 		config_xml += lines[i].lstrip('1234567890:')
-		#config line maybe contain ':', so split(':') method cause a bug
+		#config line maybe contain ':', so split(':') method causes a bug
 
 	user,team,num_slots = parse_config_xml(config_xml)
 	
