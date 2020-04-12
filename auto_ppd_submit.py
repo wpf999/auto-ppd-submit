@@ -464,7 +464,7 @@ def fill_form( user,team, WU_info, gpu_info, os_info, manho_table ):
 			'pciespeed':pci_speed,
 			'os':os_id,
 			'arch':arch
-			}
+	}
 
 #end def
 
