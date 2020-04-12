@@ -9,6 +9,7 @@
 # release date: 20200408   #fix bug for os name map
 # release date: 20200410   #refine
 # release date: 20200411   #delete unused function
+# release date: 20200412   #delete unused function
 
 import sys
 if sys.version_info.major != 3 :
