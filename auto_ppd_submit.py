@@ -140,7 +140,7 @@ def get_WU_info(lines):
 		if (len(item)==8) and (item[-2] =='Project') and (item[3] == WUxx) and (item[4] == FSxx):
 			core = item[-3]
 			project = item[-1].strip()
-			project_num = item[-1].split()[0]
+			project_num = project.split()[0]
 			found += 1
 		
 		# get_WU_time_and_steps
