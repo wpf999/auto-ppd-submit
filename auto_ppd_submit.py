@@ -83,7 +83,7 @@ def get_config(lines):
 	
 	config_xml = '' 
 	for i in range( i_begin, i_end+1 ):
-		config_xml += lines[i].lstrip('1234567890:') 
+		config_xml += lines[i].lstrip('1234567890:')
 		#config line maybe contain ':', so split(':') method cause a bug
 
 	user,team,num_slots = parse_config_xml(config_xml)
@@ -187,7 +187,7 @@ def compute_TPF(time_step_array):
 		tx = tx + 24*3600
 
 	tpf = 1.0*(tx-t0)/(stepx-step0)
-	tpf = int ( round(tpf) )
+	tpf = int( round(tpf) )
 	tpf_min = tpf//60
 	tpf_sec = tpf%60
 
