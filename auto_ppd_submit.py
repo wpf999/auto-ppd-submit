@@ -106,8 +106,11 @@ def get_WU_index_list(log_lines):
 	c=len(log_lines)
 	index_list=[]
 	for i in range(c-1, 0, -1):
-		if log_lines[i].split(':')[-1] == 'Starting':
-			index_list.append(i)
+		item = log_lines[i].split(':')
+		if (len(item) == 6) and (item[-1] == 'Starting'):
+			WUxx = item[3]
+			FSxx = item[4]
+			index_list.append((i,WUxx,FSxx))
 	return index_list
 #end def
 
@@ -119,15 +122,9 @@ def get_WUxxFSxx(line):
 	return WUxx,FSxx
 #end def
 	
-def get_WU_slot(line):
-	_, FSxx = get_WUxxFSxx(line)
-	slot_id = FSxx.lstrip('FS')
-	return slot_id,int(slot_id)
-#end def
-
 def get_WU_info(lines):
 	WUxx, FSxx = get_WUxxFSxx(lines[0])
-	slot,_ = get_WU_slot(lines[0])
+	slot = FSxx.strip('FS')
 	found = 0
 	for line in lines:
 		item = line.split(':')
@@ -597,6 +594,19 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 #end def
 
 def do_log(filename):
+	############################################################################
+	print('-'*80)
+	print('Starting some check...')
+	gpu_info_list = get_gpu_info()
+	if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
+
+	manho_table = get_manho_table()
+	if manho_table is None: 
+		print('can not get manho table, try to submit result later')
+		return
+	############################################################################
+	print('Scanning fah log...')
+	print('-'*80)
 
 	log_lines = read_log(filename)
 
@@ -615,26 +625,16 @@ def do_log(filename):
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
 	print('%15s'%'WU index:'   , WU_index_list )
 
-	gpu_info_list = get_gpu_info()
-	if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
-
-	manho_table = get_manho_table()
-	if manho_table is None: 
-		print('can not get manho table, try to submit result later')
-		return
-
 	s=set()
-	
-	for index in WU_index_list:
-		slot, _ = get_WU_slot(log_lines[index])
-		if slot not in s:
+	for index, _, FS in WU_index_list:
+		if FS not in s:
 			#only watch the last task for each slot
-			s.add(slot)
-			do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)	
+			s.add(FS)
+			do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
+
+		if len(s) == n_slots:	break
 		
-		if len(s) == n_slots:
-			break
-			
+	print('-'*80)
 #end def
 
 def init():
@@ -682,7 +682,7 @@ def search_fah_log():
 
 # ##################################################################################################
 FAH_GPU_CORES = ('0x15', '0x16', '0x17', '0x18', '0x19', '0x20', '0x21', '0x22')
-submit_db = set([])
+submit_db = set()
 
 if __name__ == '__main__':
 	DEBUG = False
@@ -691,10 +691,10 @@ if __name__ == '__main__':
 		fah_log_file = search_fah_log()
 		# main loop
 		while True:
-			print('-'*80)
+			
 			do_log(fah_log_file)
 			print(time.asctime(time.localtime(time.time())))
-			print('-'*80)
+			
 			print('\n\n')
 			sys.stdout.flush()
 			time.sleep(60 if not DEBUG else 1)
