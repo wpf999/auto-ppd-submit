@@ -77,16 +77,15 @@ def read_log(fah_log):
 		if (len(item) == 4) and (item[-1] == '</config>'):
 			cfg_end = i
 
-	cfg_index=(cfg_begin, cfg_end)
+	cfg_index = (cfg_begin, cfg_end)
 
 	return contents, FS_index, cfg_index  
 #end def
 
 def get_config(lines, cfg_index):
-	i_begin = cfg_index[0]
-	i_end = cfg_index[1]
+	i_begin, i_end = cfg_index
 
-	if i_begin==i_end:
+	if i_begin >= i_end :
 		raise Exception('can not find <config>')
 	
 	config_xml = '' 
