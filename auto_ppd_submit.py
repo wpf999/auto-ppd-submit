@@ -83,7 +83,7 @@ def read_log(fah_log):
 	return contents, FS_index, cfg_index  
 #end def
 
-def get_config(lines, cfg_index):
+def get_config(log_lines, cfg_index):
 	i_begin, i_end = cfg_index
 
 	if i_begin >= i_end :
@@ -91,7 +91,7 @@ def get_config(lines, cfg_index):
 	
 	config_xml = '' 
 	for i in range( i_begin, i_end+1 ):
-		config_xml += lines[i].lstrip('1234567890:')
+		config_xml += log_lines[i].lstrip('1234567890:')
 		#config line maybe contain ':', so split(':') method causes a bug
 
 	user,team,num_slots = parse_config_xml(config_xml)
@@ -121,12 +121,14 @@ def get_WUxxFSxx(line):
 	return WUxx,FSxx
 #end def
 
-def get_WU_info(lines):
-	WUxx, FSxx = get_WUxxFSxx(lines[0])
+def get_WU_info(log_lines, index):
+	WUxx, FSxx = get_WUxxFSxx(log_lines[index])
 	slot = FSxx.strip('FS')
 	found = 0
 	time_step_array = []
-	for line in lines:
+	c = len(log_lines)
+	for i in range(index, c-1 ):
+		line = log_lines[i]
 		item = line.split(':')
 		if len(item)<5 :
 			#drop some line
@@ -553,11 +555,11 @@ def post_form(form_para):
 # 	return None
 # #end def
 
-def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
+def do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_table):
 	global FAH_GPU_CORES
 	global submit_db
 	
-	WU_info = get_WU_info(lines)
+	WU_info = get_WU_info(log_lines, index)
 	slot = WU_info['slot']
 	core = WU_info['core']
 	project_num = WU_info['project_num']
@@ -663,7 +665,7 @@ def do_log(filename):
 	print('%15s'%'Total Slots:', n_slots )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'Last WU Index:' , FS_index )      #FS_index: last WU index for echo Slot
+	print('%15s'%'Last WU Index:' , FS_index )      #FS_index: last WU starting index for echo slot
 
 	if (len(FS_index) == 0):
 		print('### not enough data. sleep...')
@@ -680,7 +682,7 @@ def do_log(filename):
 	# 	do_slot_log(log, user,team, os_info, gpu_info_list, manho_table )
 
 	for index in FS_index.values():
-		do_slot_log(log_lines[index:], user, team, os_info, gpu_info_list, manho_table)
+		do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_table)
 
 	print('-'*80)
 #end def
