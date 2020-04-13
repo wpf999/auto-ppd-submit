@@ -55,11 +55,20 @@ def read_log(fah_log):
 	f = open(fah_log, mode='rb')
 	bytes_list = f.readlines()
 	f.close()
-	
+	index_list=[]
 	contents = []
-	for b in bytes_list:
-		contents.append( b.decode('UTF-8', errors='ignore').strip() )
-	return contents
+	for i,b in enumerate(bytes_list):
+		line=b.decode('UTF-8', errors='ignore').strip() 
+		contents.append( line )
+		item=line.split(':')
+		if (len(item) == 6) and (item[-1] == 'Starting') and ('FS' in item[4]) and ('WU' in item[3]):
+			FSxx = item[4]
+			index_list.append((i,FSxx))
+			
+	index_list.reverse() #important
+	#index_list = list(reversed(index_list))
+
+	return contents,index_list
 #end def
 
 def get_config(lines):
@@ -100,18 +109,6 @@ def parse_config_xml(config_xml):
 	team = root.getElementsByTagName('team')[0].getAttribute('v').strip()
 	n_slots = len(root.getElementsByTagName('slot'))
 	return user,team,n_slots
-#end def
-
-def get_WU_index_list(log_lines):
-	c=len(log_lines)
-	index_list=[]
-	for i in range(c-1, 0, -1):
-		item = log_lines[i].split(':')
-		if (len(item) == 6) and (item[-1] == 'Starting'):
-			WUxx = item[3]
-			FSxx = item[4]
-			index_list.append((i,WUxx,FSxx))
-	return index_list
 #end def
 
 def get_WUxxFSxx(line):
@@ -603,7 +600,7 @@ def do_log(filename):
 	print('Scanning fah log...')
 	print('-'*80)
 
-	log_lines = read_log(filename)
+	log_lines, WU_index_list = read_log(filename)
 
 	config  = get_config(log_lines)
 	user    = config['user']
@@ -611,7 +608,7 @@ def do_log(filename):
 	n_slots = config['num_slots']
 
 	os_info       = get_os_info( )
-	WU_index_list = get_WU_index_list(log_lines)
+	#WU_index_list = get_WU_index_list(log_lines)
 
 	print('%15s'%'User:'       , user )
 	print('%15s'%'Team:'       , team )
@@ -621,7 +618,7 @@ def do_log(filename):
 	print('%15s'%'WU index:'   , WU_index_list )
 
 	s=set()
-	for index, _, FSxx in WU_index_list:
+	for index, FSxx in WU_index_list:
 		if FSxx not in s:
 			#only watch the last task for each slot
 			s.add(FSxx)
