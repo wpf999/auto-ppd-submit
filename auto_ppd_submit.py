@@ -55,7 +55,7 @@ def read_log(fah_log):
 	f = open(fah_log, mode='rb')
 	bytes_list = f.readlines()
 	f.close()
-	index_list=[]
+	#index_list=[]
 	contents = []
 	FS_last_starting={}
 	for i,b in enumerate(bytes_list):
@@ -64,14 +64,14 @@ def read_log(fah_log):
 		item=line.split(':')
 		if (len(item) == 6) and (item[-1] == 'Starting') and ('FS' in item[4]) and ('WU' in item[3]):
 			FSxx = item[4]
-			index_list.append((i,FSxx))
+			#index_list.append((i,FSxx))
 			FS_last_starting[FSxx] = i
 			
-	index_list.reverse() #important
+	#index_list.reverse() #important
 	# or
 	#index_list = list(reversed(index_list)) # get a reversed copy of original list
 
-	return contents,index_list
+	return contents,FS_last_starting  #,index_list
 #end def
 
 def get_config(lines):
@@ -541,23 +541,23 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	WU_info['tpf_min']=tpf_min
 	WU_info['tpf_sec']=tpf_sec
 
-	if len(gpu_info_list) == 1 :     #only cope with one GPU
-		gpu_info = gpu_info_list[0]
-	else:
-		#'需要找到本slot对应的GPU'
-		#'按PID寻找GPU'
-		core_PID = WU_info['core_PID']
-		gpu_info = None
-	
-		for ginfo in gpu_info_list:
-			#print( 'keys:',ginfo['pid_list'].keys() ) #debug
-			if core_PID in ginfo['pid_list'].keys() :
-				gpu_info = ginfo
-				#'找到了！'
+	# if len(gpu_info_list) == 1 :     #only cope with one GPU
+	# 	gpu_info = gpu_info_list[0]   #bug!
+	# else:
+	#'需要找到本slot对应的GPU'
+	#'按PID寻找GPU'
+	core_PID = WU_info['core_PID']
+	gpu_info = None
 
-		if gpu_info is None :
-			print('Can not find GPU running on process #'+str(core_PID))
-			return -1
+	for ginfo in gpu_info_list:
+		#print( 'keys:',ginfo['pid_list'].keys() ) #debug
+		if core_PID in ginfo['pid_list'].keys() :
+			gpu_info = ginfo
+			#'找到了！'
+
+	if gpu_info is None :
+		print('Can not find GPU running on process #'+str(core_PID))
+		return -1
 	#end if
 	
 	print('%15s'%'GPU:'       , gpu_info['name'])
@@ -603,7 +603,7 @@ def do_log(filename):
 	print('Scanning fah log...')
 	print('-'*80)
 
-	log_lines, WU_index_list = read_log(filename)
+	log_lines, FS_index = read_log(filename)
 
 	config  = get_config(log_lines)
 	user    = config['user']
@@ -618,14 +618,10 @@ def do_log(filename):
 	print('%15s'%'Total Slots:', n_slots )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'WU index:'   , WU_index_list )
+	print('%15s'%'WU index:'   , FS_index )
 
-	s=set()
-	for index, FSxx in WU_index_list:
-		if FSxx not in s:
-			#only watch the last task for each slot
-			s.add(FSxx)
-			do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
+	for index in FS_index.values():
+		do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
 
 	print('-'*80)
 #end def
