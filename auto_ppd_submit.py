@@ -66,7 +66,8 @@ def read_log(fah_log):
 			index_list.append((i,FSxx))
 			
 	index_list.reverse() #important
-	#index_list = list(reversed(index_list))
+	# or
+	#index_list = list(reversed(index_list)) # get a reversed copy of original list
 
 	return contents,index_list
 #end def
