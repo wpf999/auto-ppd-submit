@@ -660,12 +660,13 @@ def do_log(filename):
 
 	os_info = get_os_info( )
 	
-	print('%15s'%'User:'       , user )
-	print('%15s'%'Team:'       , team )
-	print('%15s'%'Total Slots:', n_slots )
-	print('%15s'%'OS:'         , os_info['name'] )
-	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'Last WU Index:' , FS_index )      #FS_index: last WU starting index for echo slot
+	print('%20s'%'User:'       , user )
+	print('%20s'%'Team:'       , team )
+	print('%20s'%'Total Slots:', n_slots )
+	print('%20s'%'OS:'         , os_info['name'] )
+	print('%20s'%'OS Arch:'    , os_info['arch'] )
+	print('%20s'%'Last config Index', cfg_index)
+	print('%20s'%'Last WU Index:'   , FS_index )      #FS_index: last WU starting index for echo slot
 
 	if (len(FS_index) == 0):
 		print('### not enough data. sleep...')
