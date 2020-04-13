@@ -128,10 +128,10 @@ def get_WU_info(lines):
 	for line in lines:
 		item = line.split(':')
 		if len(item)<5 :
-			print('continue:',line)
+			#print('continue:',line)
 			continue
 		if (item[3]!=WUxx) or (item[4]!=FSxx) :
-			print('continue:',line)
+			#print('continue:',line)
 			continue
 
 		# get_WU_core_PID
@@ -512,6 +512,40 @@ def post_form(form_para):
 		return -1
 
 #end def
+def split_log(log_lines, FS_index):
+	slot_log = {}
+	for FS in FS_index.keys():
+		slot_log[FS] = []
+	
+	index_min = min( FS_index.values() )
+	c = len(log_lines)
+	for i in range(index_min, c-1):
+		line = log_lines[i]
+		item = log_lines[i].split(':')
+		if(len(item)<5):
+			continue
+		else:
+			if item[4].startswith('FS') and item[3].startswith('WU'):
+				FSxx = item[4]
+				slot_log[FSxx].append(line)
+			else:
+				#print(line) #debug
+				continue
+
+	for FS, log in slot_log.items():
+		slot_log[FS] = get_last_starting(log)
+
+
+	return slot_log
+#end def
+
+def get_last_starting(FS_log):
+	c=len(FS_log)
+	for i in range(c-1, -1 ,-1):
+		if FS_log[i].endswith(':Starting'):
+			return FS_log[i:]
+	return None
+#end def
 
 def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	global FAH_GPU_CORES
@@ -622,11 +656,21 @@ def do_log(filename):
 	print('%15s'%'Total Slots:', n_slots )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'Slot Index:' , FS_index )
+	print('%15s'%'Last WU Index:' , FS_index )
+	
+	slots_log = split_log(log_lines, FS_index)
+
+	# for FS, log in slots_log.items():
+	for log in slots_log.values():
+		# print('='*60)
+		# print('FS:',FS)
+		# print(''*80)
+		# print('\r\n'.join(log))
+		do_slot_log(log, user,team, os_info, gpu_info_list, manho_table )
 
 	# FS_index: last WU index for echo Slot
-	for index in FS_index.values():
-		do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
+	# for index in FS_index.values():
+	# 	do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
 
 	print('-'*80)
 #end def
@@ -690,8 +734,8 @@ if __name__ == '__main__':
 			sys.stdout.flush()
 			time.sleep(60 if not DEBUG else 1)
 	except:
-			t, v, _ = sys.exc_info()
-			print(t, v)
+			t, v, errinfo = sys.exc_info()
+			print(t, v, errinfo)
 			#os.system("pause")
 			print('press enter to exit...')
 			sys.stdin.readline()
