@@ -123,7 +123,7 @@ def get_WUxxFSxx(line):
 
 def get_WU_info(log_lines, index):
 	WUxx, FSxx = get_WUxxFSxx(log_lines[index])
-	slot = FSxx.strip('FS')
+	#slot = FSxx.strip('FS')
 	found = 0
 	time_step_array = []
 	c = len(log_lines)
@@ -171,7 +171,7 @@ def get_WU_info(log_lines, index):
 
 	if found == 2 :
 		return {
-			'slot':slot,
+			'slot':FSxx, #slot
 			'core_PID':core_PID,
 			'core':core, 
 			'project_num':project_num, 
@@ -560,16 +560,16 @@ def do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_tabl
 	global submit_db
 	
 	WU_info = get_WU_info(log_lines, index)
-	slot = WU_info['slot']
+	FSxx = WU_info['slot']
 	core = WU_info['core']
 	project_num = WU_info['project_num']
 	project = WU_info['project']
 	
 	print('='*60)
-	print('%15s'%'Slot ID:',slot)
-	print('%15s'%'Core:',core)
-	print('%15s'%'Project:',project_num)
-	print('%15s'%'Project(RCG):',project) 
+	print('%20s'%'Slot ID:',FSxx)
+	print('%20s'%'Core:',core)
+	print('%20s'%'Project:',project_num)
+	print('%20s'%'Project(RCG):',project) 
 		
 	time_step_array = WU_info['time_step_array'] #get_WU_time_and_steps(lines)
 
@@ -578,9 +578,9 @@ def do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_tabl
 		return -1
 
 	step0,stepx,t0,tx,tpf_min,tpf_sec = compute_TPF(time_step_array)
-	print('%15s'%'progress:'   , [step0,stepx] )
-	print('%15s'%'running sec:', [t0,tx] )
-	print('%15s'%'TPF:',tpf_min,'min',tpf_sec,'sec')
+	print('%20s'%'progress:'   , [step0,stepx] )
+	print('%20s'%'running sec:', [t0,tx] )
+	print('%20s'%'TPF:',tpf_min,'min',tpf_sec,'sec')
 
 	WU_info['tpf_min']=tpf_min
 	WU_info['tpf_sec']=tpf_sec
@@ -608,13 +608,13 @@ def do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_tabl
 		return -1
 	#end if
 	
-	print('%15s'%'GPU:'       , gpu_info['name'])
-	print('%15s'%'GPU Driver:', gpu_info['driver'])
-	print('%15s'%'GPU Clock:' , gpu_info['graphics_clock'])
-	print('%15s'%'GMem Clock:', gpu_info['mem_clock'])
-	print('%15s'%'pci_gen:'   , gpu_info['pci_gen'])
-	print('%15s'%'pci_speed:' , gpu_info['pci_speed'])
-	print('%15s'%'pci_bus:'   , gpu_info['pci_bus'] )
+	print('%20s'%'GPU:'       , gpu_info['name'])
+	print('%20s'%'GPU Driver:', gpu_info['driver'])
+	print('%20s'%'GPU Clock:' , gpu_info['graphics_clock'])
+	print('%20s'%'GMem Clock:', gpu_info['mem_clock'])
+	print('%20s'%'pci_gen:'   , gpu_info['pci_gen'])
+	print('%20s'%'pci_speed:' , gpu_info['pci_speed'])
+	print('%20s'%'pci_bus:'   , gpu_info['pci_bus'] )
 	sys.stdout.flush()
 
 	if project in submit_db:
@@ -665,8 +665,8 @@ def do_log(filename):
 	print('%20s'%'Total Slots:', n_slots )
 	print('%20s'%'OS:'         , os_info['name'] )
 	print('%20s'%'OS Arch:'    , os_info['arch'] )
-	print('%20s'%'Last config Index', cfg_index)
-	print('%20s'%'Last WU Index:'   , FS_index )      #FS_index: last WU starting index for echo slot
+	print('%20s'%'Last config Index:', list(cfg_index) )
+	print('%20s'%'Last WU Index:'    , FS_index )      #FS_index: last WU starting index for echo slot
 
 	if (len(FS_index) == 0):
 		print('### not enough data. sleep...')
