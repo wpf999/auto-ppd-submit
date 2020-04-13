@@ -129,9 +129,11 @@ def get_WU_info(lines):
 	for line in lines:
 		item = line.split(':')
 		if len(item)<5 :
+			#drop some line
 			#print('continue:',line)
 			continue
 		if (item[3]!=WUxx) or (item[4]!=FSxx) :
+			#drop some line
 			#print('continue:',line)
 			continue
 
@@ -140,6 +142,7 @@ def get_WU_info(lines):
 		if (len(item)==7) and ( item[-2] == 'Core PID') :
 			core_PID = int(item[-1])
 			found += 1
+			continue
 		
 		# get_WU_core_and_project
 		# The line likes '06:32:23:WU02:FS04:0x22:Project: 14543 (Run 0, Clone 1319, Gen 22)'
@@ -148,6 +151,7 @@ def get_WU_info(lines):
 			project = item[-1].strip()
 			project_num = project.split()[0]
 			found += 1
+			continue
 		
 		# get_WU_time_and_steps
 		# The line likes '05:54:27:WU04:FS03:0x22:Completed 4350000 out of 5000000 steps (87%)'
@@ -513,40 +517,41 @@ def post_form(form_para):
 		return -1
 
 #end def
-def split_log(log_lines, FS_index):
-	slot_log = {}
-	for FS in FS_index.keys():
-		slot_log[FS] = []
+
+# def split_log(log_lines, FS_index):
+# 	slot_log = {}
+# 	for FS in FS_index.keys():
+# 		slot_log[FS] = []
 	
-	index_min = min( FS_index.values() )
-	c = len(log_lines)
-	for i in range(index_min, c-1):
-		line = log_lines[i]
-		item = log_lines[i].split(':')
-		if(len(item)<5):
-			continue
-		else:
-			if item[4].startswith('FS') and item[3].startswith('WU'):
-				FSxx = item[4]
-				slot_log[FSxx].append(line)
-			else:
-				#print(line) #debug
-				continue
+# 	index_min = min( FS_index.values() )
+# 	c = len(log_lines)
+# 	for i in range(index_min, c-1):
+# 		line = log_lines[i]
+# 		item = log_lines[i].split(':')
+# 		if(len(item)<5):
+# 			continue
+# 		else:
+# 			if item[4].startswith('FS') and item[3].startswith('WU'):
+# 				FSxx = item[4]
+# 				slot_log[FSxx].append(line)
+# 			else:
+# 				#print(line) #debug
+# 				continue
 
-	for FS, log in slot_log.items():
-		slot_log[FS] = get_last_starting(log)
+# 	for FS, log in slot_log.items():
+# 		slot_log[FS] = get_last_starting(log)
 
 
-	return slot_log
-#end def
+# 	return slot_log
+# #end def
 
-def get_last_starting(FS_log):
-	c=len(FS_log)
-	for i in range(c-1, -1 ,-1):
-		if FS_log[i].endswith(':Starting'):
-			return FS_log[i:]
-	return None
-#end def
+# def get_last_starting(FS_log):
+# 	c=len(FS_log)
+# 	for i in range(c-1, -1 ,-1):
+# 		if FS_log[i].endswith(':Starting'):
+# 			return FS_log[i:]
+# 	return None
+# #end def
 
 def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	global FAH_GPU_CORES
@@ -658,25 +663,24 @@ def do_log(filename):
 	print('%15s'%'Total Slots:', n_slots )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'Last WU Index:' , FS_index )
+	print('%15s'%'Last WU Index:' , FS_index )      #FS_index: last WU index for echo Slot
 
 	if (len(FS_index) == 0):
 		print('### not enough data. sleep...')
 		return 
 
-	slots_log = split_log(log_lines, FS_index)
+	# slots_log = split_log(log_lines, FS_index)
 
-	# for FS, log in slots_log.items():
-	for log in slots_log.values():
-		# print('='*60)
-		# print('FS:',FS)
-		# print(''*80)
-		# print('\r\n'.join(log))
-		do_slot_log(log, user,team, os_info, gpu_info_list, manho_table )
+	# # for FS, log in slots_log.items():
+	# for log in slots_log.values():
+	# 	# print('='*60)
+	# 	# print('FS:',FS)
+	# 	# print(''*80)
+	# 	# print('\r\n'.join(log))
+	# 	do_slot_log(log, user,team, os_info, gpu_info_list, manho_table )
 
-	# FS_index: last WU index for echo Slot
-	# for index in FS_index.values():
-	# 	do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
+	for index in FS_index.values():
+		do_slot_log(log_lines[index:], user, team, os_info, gpu_info_list, manho_table)
 
 	print('-'*80)
 #end def
