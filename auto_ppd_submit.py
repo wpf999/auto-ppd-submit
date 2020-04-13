@@ -57,6 +57,7 @@ def read_log(fah_log):
 	f.close()
 	index_list=[]
 	contents = []
+	FS_last_starting={}
 	for i,b in enumerate(bytes_list):
 		line=b.decode('UTF-8', errors='ignore').strip() 
 		contents.append( line )
@@ -64,6 +65,7 @@ def read_log(fah_log):
 		if (len(item) == 6) and (item[-1] == 'Starting') and ('FS' in item[4]) and ('WU' in item[3]):
 			FSxx = item[4]
 			index_list.append((i,FSxx))
+			FS_last_starting[FSxx] = i
 			
 	index_list.reverse() #important
 	# or
