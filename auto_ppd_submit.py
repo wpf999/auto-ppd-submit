@@ -11,6 +11,7 @@
 # release date: 20200411   #delete unused function
 # release date: 20200412   #delete unused function
 # release date: 20200412   #improve string matching for fah log
+# release date: 20200413   #improve & refine & fix bug
 
 
 import sys
@@ -658,6 +659,10 @@ def do_log(filename):
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
 	print('%15s'%'Last WU Index:' , FS_index )
+
+	if (len(FS_index) == 0):
+		print('### not enough data. sleep...')
+		return 
 
 	slots_log = split_log(log_lines, FS_index)
 
