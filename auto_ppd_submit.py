@@ -610,16 +610,16 @@ def do_log(filename):
 	team    = config['team']
 	n_slots = config['num_slots']
 
-	os_info       = get_os_info( )
-	#WU_index_list = get_WU_index_list(log_lines)
-
+	os_info = get_os_info( )
+	
 	print('%15s'%'User:'       , user )
 	print('%15s'%'Team:'       , team )
 	print('%15s'%'Total Slots:', n_slots )
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
-	print('%15s'%'WU index:'   , FS_index )
+	print('%15s'%'Slot Index:' , FS_index )
 
+	# FS_index: last WU index for echo Slot
 	for index in FS_index.values():
 		do_slot_log(log_lines[index:],user,team,os_info, gpu_info_list, manho_table)
 
