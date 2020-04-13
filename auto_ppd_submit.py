@@ -52,41 +52,40 @@ def get_os_info():
 #end def
 
 def read_log(fah_log):
+	contents = []
+	FS_index = {}
+	cfg_begin = cfg_end = 0
+	
 	f = open(fah_log, mode='rb')
 	bytes_list = f.readlines()
 	f.close()
-	#index_list=[]
-	contents = []
-	FS_last_starting={}
+	
 	for i,b in enumerate(bytes_list):
 		line=b.decode('UTF-8', errors='ignore').strip() 
 		contents.append( line )
+
 		item=line.split(':')
+		
+		# get last WU index for echo slot
 		if (len(item) == 6) and (item[-1] == 'Starting') and ('FS' in item[4]) and ('WU' in item[3]):
 			FSxx = item[4]
-			#index_list.append((i,FSxx))
-			FS_last_starting[FSxx] = i
-			
-	#index_list.reverse() #important
-	# or
-	#index_list = list(reversed(index_list)) # get a reversed copy of original list
+			FS_index[FSxx] = i  #it is great, only records the last starting index
 
-	return contents,FS_last_starting  #,index_list
+		if (len(item) == 4) and (item[-1] == '<config>'):
+			cfg_begin = i
+
+		if (len(item) == 4) and (item[-1] == '</config>'):
+			cfg_end = i
+
+	cfg_index=(cfg_begin, cfg_end)
+
+	return contents, FS_index, cfg_index  
 #end def
 
-def get_config(lines):
-	c=len(lines)
-	i_begin=i_end=0
-	for i in range(c-1, 0, -1):
-		item = lines[i].split(':')
-		if len(item) != 4:
-			continue  #提高搜寻效率
-		if item[3] == '</config>':
-			i_end=i
-		if item[3] == '<config>':
-			i_begin=i
-			break
-	
+def get_config(lines, cfg_index):
+	i_begin = cfg_index[0]
+	i_end = cfg_index[1]
+
 	if i_begin==i_end:
 		raise Exception('can not find <config>')
 	
@@ -603,9 +602,9 @@ def do_log(filename):
 	print('Scanning fah log...')
 	print('-'*80)
 
-	log_lines, FS_index = read_log(filename)
+	log_lines, FS_index, cfg_index = read_log(filename)
 
-	config  = get_config(log_lines)
+	config  = get_config(log_lines, cfg_index)
 	user    = config['user']
 	team    = config['team']
 	n_slots = config['num_slots']
