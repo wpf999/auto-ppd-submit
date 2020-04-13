@@ -127,8 +127,13 @@ def get_WU_info(lines):
 	time_step_array = []
 	for line in lines:
 		item = line.split(':')
-		if (len(item)<5) or (item[3]!=WUxx) or (item[4]!=FSxx) :
+		if len(item)<5 :
+			print('continue:',line)
 			continue
+		if (item[3]!=WUxx) or (item[4]!=FSxx) :
+			print('continue:',line)
+			continue
+
 		# get_WU_core_PID
 		# The line likes '06:32:23:WU02:FS04:Core PID:3920'
 		if (len(item)==7) and ( item[-2] == 'Core PID') :
