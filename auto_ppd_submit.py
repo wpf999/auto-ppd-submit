@@ -151,7 +151,7 @@ def get_WU_info(lines):
 			
 			step = item[-1].split()[-1].strip('(%)')
 			step = int(step)
-			time_step_array.append((step, t))
+			time_step_array.append((t, step))
 	#end for
 
 	if found == 2 :
@@ -170,8 +170,8 @@ def get_WU_info(lines):
 def compute_TPF(time_step_array):
 	if len(time_step_array) < 2: return 0,0,0,0,0,0
 	
-	step0,t0 = time_step_array[0]
-	stepx,tx = time_step_array[-1]
+	t0, step0 = time_step_array[0]
+	tx, stepx = time_step_array[-1]
 	
 	#异常
 	if (tx-t0) < 0 : # next day
