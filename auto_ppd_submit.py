@@ -557,9 +557,6 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	project_num = WU_info['project_num']
 	project = WU_info['project']
 	
-	if core not in FAH_GPU_CORES : 
-		return -2 #skip cpu slot
-	
 	print('='*60)
 	print('%15s'%'Slot ID:',slot)
 	print('%15s'%'Core:',core)
@@ -580,6 +577,10 @@ def do_slot_log(lines, user, team, os_info, gpu_info_list, manho_table):
 	WU_info['tpf_min']=tpf_min
 	WU_info['tpf_sec']=tpf_sec
 
+	if core not in FAH_GPU_CORES :
+		print('skip cpu slot...') 
+		return -2 #skip cpu slot
+	
 	# if len(gpu_info_list) == 1 :     #only cope with one GPU
 	# 	gpu_info = gpu_info_list[0]   #bug!
 	# else:
@@ -657,7 +658,7 @@ def do_log(filename):
 	print('%15s'%'OS:'         , os_info['name'] )
 	print('%15s'%'OS Arch:'    , os_info['arch'] )
 	print('%15s'%'Last WU Index:' , FS_index )
-	
+
 	slots_log = split_log(log_lines, FS_index)
 
 	# for FS, log in slots_log.items():
