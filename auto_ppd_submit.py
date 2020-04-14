@@ -687,6 +687,8 @@ def do_log(filename):
         do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_table)
 
     print('-'*80)
+    print(time.asctime(time.localtime(time.time())), '\n\n')
+    sys.stdout.flush()
 #end def
 
 def init():
@@ -741,16 +743,20 @@ if __name__ == '__main__':
     try:
         init()
         fah_log_file = search_fah_log()
+    except:
+        t, v, errinfo = sys.exc_info()
+        print(t, v, errinfo.tb_lineno)
+        print('press enter to exit...')
+        sys.stdin.readline()
+        exit(-1)
+
         # main loop
         while True:
-            do_log(fah_log_file)
-            print(time.asctime(time.localtime(time.time())), '\n\n')
-            sys.stdout.flush()
+            try:
+                do_log(fah_log_file)
+            except:
+                t, v, errinfo = sys.exc_info()
+                print(t, v, errinfo.tb_lineno, errinfo.__repr__)
+
             time.sleep(60 if not DEBUG else 1)
-    except:
-            t, v, errinfo = sys.exc_info()
-            print(t, v, errinfo)
-            #os.system("pause")
-            print('press enter to exit...')
-            sys.stdin.readline()
-            exit(-1)
+        #end while
