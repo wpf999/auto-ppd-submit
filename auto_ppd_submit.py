@@ -627,7 +627,7 @@ def do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_tabl
         if ret==0 : #submit OK!
             submit_db.add(project)
         
-        print('%15s'%'submit_db:', (project in submit_db))
+        print('%20s'%'submit_db:', (project in submit_db))
         return 0
 
 #end def
