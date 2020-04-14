@@ -762,6 +762,16 @@ if __name__ == '__main__':
         except:
             t, v, errinfo = sys.exc_info()
             print(t, v, '\nerror line:',errinfo.tb_lineno)
+            # never exit if error
         #end try
-        time.sleep(60 if not DEBUG else 1) 
+
+        try:
+            time.sleep(60 if not DEBUG else 1) 
+        except:
+            t, v, errinfo = sys.exc_info()
+            print(t, v, '\nerror line:',errinfo.tb_lineno)
+            print('press enter to exit...')
+            sys.stdin.readline()
+            exit(-1)
+        #end try
     #end while
