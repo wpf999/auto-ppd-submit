@@ -632,7 +632,7 @@ def do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_tabl
 
 #end def
 
-def do_log(filename):
+def auto_ppd_submit_main( ):
     ############################################################################
     print('-'*80)
     print('Starting some check...')
@@ -651,8 +651,8 @@ def do_log(filename):
     ############################################################################
     print('Scanning fah log...')
     print('-'*80)
-
-    log_lines, FS_index, cfg_index = read_log(filename)
+    f = search_fah_log()
+    log_lines, FS_index, cfg_index = read_log(f)
 
     config  = get_config(log_lines, cfg_index)
     user    = config['user']
@@ -709,13 +709,10 @@ def init():
         print('nvidia-smi:' , get_nv_smi() )
 
         #check fah log
-        fah_log_file = search_fah_log()
-        print('fah log file:', fah_log_file)
+        print('fah log file:', search_fah_log() )
 
         #set my log 
         logging.basicConfig(filename='auto_ppd_submit.log',  level=logging.DEBUG,  format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s' )
-        
-        return fah_log_file
     except:
         t, v, errinfo = sys.exc_info()
         print(t, v, '\nerror line:',errinfo.tb_lineno)
@@ -754,11 +751,11 @@ submit_db = set()
 if __name__ == '__main__':
     DEBUG = False
     
-    fah_log_file = init()
+    init()
     ########## main loop ##########
     while True:
         try:
-            do_log(fah_log_file)
+            auto_ppd_submit_main()
         except:
             t, v, errinfo = sys.exc_info()
             print(t, v, '\nerror line:',errinfo.tb_lineno)
