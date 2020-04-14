@@ -648,10 +648,13 @@ def auto_ppd_submit_main( ):
     if len(gpu_info_list) < 1: raise Exception('No GPU in your system! exit...')
     print('--check GPU and its status: Done')
 
+    print('--check fah log existence...')
+    f = search_fah_log()
+    print('--check fah log existence: Done')
+
     ############################################################################
     print('Scanning fah log...')
     print('-'*80)
-    f = search_fah_log()
     log_lines, FS_index, cfg_index = read_log(f)
 
     config  = get_config(log_lines, cfg_index)
