@@ -12,6 +12,7 @@
 # release date: 20200412   #delete unused function
 # release date: 20200412   #improve string matching for fah log
 # release date: 20200413   #improve & refine & fix bug
+# release date: 20200414   fix bug
 
 
 import sys
