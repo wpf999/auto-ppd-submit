@@ -745,18 +745,19 @@ if __name__ == '__main__':
         fah_log_file = search_fah_log()
     except:
         t, v, errinfo = sys.exc_info()
-        print(t, v, errinfo.tb_lineno)
+        print(t, v, '\nerror line:',errinfo.tb_lineno)
         print('press enter to exit...')
         sys.stdin.readline()
         exit(-1)
+    #end try
 
-        # main loop
-        while True:
-            try:
-                do_log(fah_log_file)
-            except:
-                t, v, errinfo = sys.exc_info()
-                print(t, v, errinfo.tb_lineno, errinfo.__repr__)
-
-            time.sleep(60 if not DEBUG else 1)
-        #end while
+    ########## main loop ##########
+    while True:
+        try:
+            do_log(fah_log_file)
+        except:
+            t, v, errinfo = sys.exc_info()
+            print(t, v, '\nerror line:',errinfo.tb_lineno)
+        #end try
+        time.sleep(60 if not DEBUG else 1) 
+    #end while
