@@ -692,24 +692,37 @@ def do_log(filename):
 #end def
 
 def init():
-    #set window title in Windows
-    if platform.system() == 'Windows' :
-        os.system('title auto_ppd_submit.py')
+    try:
+        #set window title in Windows
+        if platform.system() == 'Windows' :
+            os.system('title auto_ppd_submit.py')
 
-    #set work dir
-    print('*'*80)
-    print('my name:',__file__)
-    pwd = os.path.split(os.path.realpath(__file__))[0]
-    print('pwd:',pwd)
-    os.chdir(pwd)
-    print('current dir:', os.getcwd() )
-    
-    #check nvidia-smi tool
-    print('nvidia-smi:' , get_nv_smi() )
+        #set work dir
+        print('*'*80)
+        print('my name:',__file__)
+        pwd = os.path.split(os.path.realpath(__file__))[0]
+        print('pwd:',pwd)
+        os.chdir(pwd)
+        print('current dir:', os.getcwd() )
+        
+        #check nvidia-smi tool
+        print('nvidia-smi:' , get_nv_smi() )
 
-    #set my log 
-    logging.basicConfig(filename='auto_ppd_submit.log',  level=logging.DEBUG,  format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s' )
-    
+        #check fah log
+        fah_log_file = search_fah_log()
+        print('fah log file:', fah_log_file)
+
+        #set my log 
+        logging.basicConfig(filename='auto_ppd_submit.log',  level=logging.DEBUG,  format='[%(asctime)s] %(name)s:%(levelname)s: %(message)s' )
+        
+        return fah_log_file
+    except:
+        t, v, errinfo = sys.exc_info()
+        print(t, v, '\nerror line:',errinfo.tb_lineno)
+        print('press enter to exit...')
+        sys.stdin.readline()
+        exit(-1)
+    #end try
 #end def
 
 def search_fah_log():
@@ -740,17 +753,8 @@ submit_db = set()
 
 if __name__ == '__main__':
     DEBUG = False
-    try:
-        init()
-        fah_log_file = search_fah_log()
-    except:
-        t, v, errinfo = sys.exc_info()
-        print(t, v, '\nerror line:',errinfo.tb_lineno)
-        print('press enter to exit...')
-        sys.stdin.readline()
-        exit(-1)
-    #end try
-
+    
+    fah_log_file = init()
     ########## main loop ##########
     while True:
         try:
