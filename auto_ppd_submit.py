@@ -69,7 +69,7 @@ def read_log(fah_log):
         item=line.split(':')
         
         # get last WU index for echo slot
-        if (len(item) == 6) and (item[-1] == 'Starting') and ('FS' in item[4]) and ('WU' in item[3]):
+        if (len(item) == 6) and (item[-1] == 'Starting') and ( item[4].startswith('FS') ) and ( item[3].startswith('WU') ):
             FSxx = item[4]
             FS_index[FSxx] = i  #it is great, only records the last starting index
 
@@ -149,7 +149,7 @@ def get_WU_info(log_lines, index):
         
         # get_WU_core_and_project
         # The line likes '06:32:23:WU02:FS04:0x22:Project: 14543 (Run 0, Clone 1319, Gen 22)'
-        if (len(item)==8) and (item[-2] =='Project') :
+        if (len(item)==8) and (item[-2] == 'Project') :
             core = item[-3]
             project = item[-1].strip()
             project_num = project.split()[0]
