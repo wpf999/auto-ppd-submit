@@ -13,7 +13,7 @@
 # release date: 20200412   #improve string matching for fah log
 # release date: 20200413   #improve & refine & fix bug
 # release date: 20200414   fix bug
-
+# release date: 20200415   refine
 
 import sys
 if sys.version_info.major != 3 :
