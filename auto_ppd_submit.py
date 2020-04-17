@@ -228,8 +228,12 @@ def get_nv_smi():
 
 def get_nv_gpu_info():
     util_cmd = get_nv_smi()
+    gpu_list=[]
 
     utils_output_xml=os.popen( util_cmd + ' -q -x').read()
+    if 'NVIDIA-SMI has failed' in utils_output_xml:
+        print('NVIDIA-SMI has failed')
+        return []
     #print utils_output_xml,len(utils_output_xml)  #debug
     DOMTree = xml.dom.minidom.parseString(utils_output_xml)
     root = DOMTree.documentElement
@@ -237,7 +241,6 @@ def get_nv_gpu_info():
     #print len(driver_version) ,driver_version[0].nodeType, driver_version[0].childNodes[0].data #.tagName
     driver_version_str = driver_version[0].childNodes[0].data
     #print driver_version_str    #debug
-    gpu_list=[]
     gpus = root.getElementsByTagName('gpu')
     for gpu in gpus :
         #gpu.hasAttribute('id')
