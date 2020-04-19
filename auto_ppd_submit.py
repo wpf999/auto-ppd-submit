@@ -201,7 +201,7 @@ def compute_TPF(time_step_array: list):
     return step0,stepx,t0,tx,tpf_min,tpf_sec
 #end def
 
-def get_nv_smi():
+def get_nv_smi()-> str:
     util_paths=[
         r'/usr/bin/nvidia-smi' ,
         str(os.getenv('SYSTEMDRIVE')) + r'\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe' ,
@@ -477,7 +477,7 @@ def fill_form( user: str, team: str, WU_info, gpu_info, os_info, manho_table ):
     }
 #end def
 
-def post_form(form_para):
+def post_form(form_para)-> int:
     if form_para == None:
         return -2
 
@@ -728,7 +728,7 @@ def init():
     #end try
 #end def
 
-def search_fah_log():
+def search_fah_log()-> str:
     log_paths = [
         'log.txt' , #current dir
         str(os.getenv('SYSTEMDRIVE')) + r'\Program Files (x86)\FAHClient\log.txt' ,
