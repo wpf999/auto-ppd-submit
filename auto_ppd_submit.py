@@ -104,7 +104,7 @@ def get_config(log_lines, cfg_index):
     }
 #end def
 
-def parse_config_xml(config_xml):
+def parse_config_xml(config_xml: str):
     
     DOMTree = xml.dom.minidom.parseString(config_xml)
     root = DOMTree.documentElement
@@ -114,7 +114,7 @@ def parse_config_xml(config_xml):
     return user,team,n_slots
 #end def
 
-def get_WUxxFSxx(line):
+def get_WUxxFSxx(line: str):
     #return line[9:18]
     item = line.split(':')
     WUxx = item[3]
@@ -122,7 +122,7 @@ def get_WUxxFSxx(line):
     return WUxx,FSxx
 #end def
 
-def get_WU_info(log_lines, index):
+def get_WU_info(log_lines, index: int):
     WUxx, FSxx = get_WUxxFSxx(log_lines[index])
     #slot = FSxx.strip('FS')
     found = 0
@@ -183,7 +183,7 @@ def get_WU_info(log_lines, index):
         raise Exception('WU info not found') #some exception
 #end def
 
-def compute_TPF(time_step_array):
+def compute_TPF(time_step_array: list):
     if len(time_step_array) < 2: return 0,0,0,0,0,0
     
     t0, step0 = time_step_array[0]
@@ -348,7 +348,7 @@ def get_manho_html():
     return html
 #end def
 
-def get_manho_gpu_table(html):
+def get_manho_gpu_table(html: str):
 
     html_select_gpu = html.split('<select name="gpuid">')[1].split('</select>')[0]
 
@@ -369,7 +369,7 @@ def get_manho_gpu_table(html):
     return map_gpuname_gpuid 
 #end def
 
-def get_manho_os_table(html):
+def get_manho_os_table(html: str):
     #html may be checked in the future
     os_table = {'Windows XP'            : '1',
              'Windows Vista'            : '2',
@@ -403,7 +403,7 @@ def get_manho_table():
     }
 #end def
 
-def fill_form( user,team, WU_info, gpu_info, os_info, manho_table ):
+def fill_form( user: str, team: str, WU_info, gpu_info, os_info, manho_table ):
     
     driver         = gpu_info['driver']
     graphics_clock = gpu_info['graphics_clock'].strip('MHz').strip()
@@ -559,7 +559,7 @@ def post_form(form_para):
 #   return None
 # #end def
 
-def do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_table):
+def do_slot_log(log_lines, index: int, user: str, team: str, os_info, gpu_info_list, manho_table):
     global FAH_GPU_CORES
     global submit_db
     
@@ -635,7 +635,7 @@ def do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_tabl
 
 #end def
 
-def auto_ppd_submit_main( ):
+def auto_ppd_submit_main():
     ############################################################################
     print('-'*80)
     print('Starting some check...')
