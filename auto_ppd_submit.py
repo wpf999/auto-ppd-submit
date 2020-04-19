@@ -342,7 +342,7 @@ def get_manho_html():
     except:
         t, v, _ = sys.exc_info()
         print(t, v)
-        print('Network exception: can not visit fah.manho.org')
+        print(time.asctime(time.localtime()),': Network exception: can not visit fah.manho.org')
         return ''
 
     return html
@@ -693,7 +693,7 @@ def auto_ppd_submit_main( ):
         do_slot_log(log_lines, index, user, team, os_info, gpu_info_list, manho_table)
 
     print('-'*80)
-    print(time.asctime(time.localtime(time.time())), '\n\n')
+    print(time.asctime(time.localtime()), '\n\n')
     sys.stdout.flush()
 #end def
 
