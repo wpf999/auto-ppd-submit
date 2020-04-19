@@ -53,12 +53,12 @@ def get_os_info():
     }
 #end def
 
-def read_log(fah_log):
+def read_log(fah_logfile: str):
     contents = []
     FS_index = {}
     cfg_begin = cfg_end = 0
     
-    f = open(fah_log, mode='rb')
+    f = open(fah_logfile, mode='rb')
     bytes_list = f.readlines()
     f.close()
     
