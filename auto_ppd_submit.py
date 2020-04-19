@@ -328,7 +328,7 @@ def get_manho_html():
 
     html=''
     try:
-        conn = http.client.HTTPSConnection('fah.manho.org')
+        conn = http.client.HTTPSConnection('fah.manho.org', timeout=10)
         conn.request('POST', '/gpu_statistics.php?a=add', params, header)
         resp = conn.getresponse()
         if resp.status != 200:
@@ -495,7 +495,7 @@ def post_form(form_para):
 
     html = ''  # html needs a initial value
     try:
-        conn = http.client.HTTPSConnection('fah.manho.org')
+        conn = http.client.HTTPSConnection('fah.manho.org', timeout=10)
         conn.request('POST', '/gpu_statistics.php?a=add', params, header)
         resp = conn.getresponse()
         if resp.status != 200:
