@@ -299,7 +299,7 @@ def get_gpu_info():
     return get_nv_gpu_info()
 #end def
 
-def get_manho_html():
+def get_manho_html()-> str:
     username = 'wpf'
     team = '3213'
 
