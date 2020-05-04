@@ -14,6 +14,9 @@
 # release date: 20200413   #improve & refine & fix bug
 # release date: 20200414   fix bug
 # release date: 20200415   refine
+# release date: 20200504   refine
+
+__version__='20200504'
 
 import sys
 if sys.version_info.major != 3 :
