@@ -419,7 +419,7 @@ def fill_form( user: str, team: str, WU_info, gpu_info, os_info, manho_table ):
     if graphics_clock=='N/A' or mem_clock=='N/A':
         return None
     
-    if (pci_gen=='N/A')  or ('Error' in pci_gen):
+    if (pci_gen=='N/A') or ('Error' in pci_gen):
         pci_gen='3'        #when the value is N/A, assume PCIE3.0*16
      
     if '1'==pci_gen:
