@@ -15,8 +15,9 @@
 # release date: 20200414   fix bug
 # release date: 20200415   refine
 # release date: 20200504   refine
+# release date: 20211204   fix bug for new GPU driver
 
-__version__='20200504'
+__version__='20211204'
 
 import sys
 if sys.version_info.major != 3 :
@@ -280,7 +281,7 @@ def get_nv_gpu_info():
             #raise Exception('can not detect GPU clock')
             
         #end if
-        
+        product_name = product_name.strip('NVIDIA').strip()
         ginfo = {   'driver':driver_version_str,
                     'uuid':uuid,
                     'pci_bus':pci_bus,
@@ -418,17 +419,18 @@ def fill_form( user: str, team: str, WU_info, gpu_info, os_info, manho_table ):
     if graphics_clock=='N/A' or mem_clock=='N/A':
         return None
     
-    if pci_gen=='N/A':
+    if (pci_gen=='N/A')  or ('Error' in pci_gen):
         pci_gen='3'        #when the value is N/A, assume PCIE3.0*16
-    if pci_speed=='N/A':
-        pci_speed='16'
-        
+     
     if '1'==pci_gen:
         pci_gen    = '1.1'
     if '2'==pci_gen:
         pci_gen    = '2.0'
     if '3'==pci_gen:
         pci_gen    = '3.0'
+
+    if pci_speed not in ('1','4','8','16'):
+        pci_speed='16'
     #################################################################
     
     gpu_table = manho_table['gpu_table']
