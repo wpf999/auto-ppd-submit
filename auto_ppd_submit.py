@@ -484,7 +484,7 @@ def fill_form( user: str, team: str, WU_info, gpu_info, os_info, manho_table ):
 
 def post_form(form_para)-> int:
     if form_para == None:
-        return -2
+        return 1
 
     user = form_para['user']
     team = form_para['team']
@@ -505,7 +505,7 @@ def post_form(form_para)-> int:
         resp = conn.getresponse()
         if resp.status != 200:
             print('===========HTTP response code is not 200 !===========')
-            return -1
+            return 2
 
         resp_data = resp.read()
         html = resp_data.decode('utf-8')
@@ -514,7 +514,7 @@ def post_form(form_para)-> int:
         t, v, _ = sys.exc_info()
         print(t, v)
         print('网络异常，本次提交失败。下一次继续重试...')
-        return -2
+        return 3
 
     #print( html ) #debug
     if ('您输入的数据已经成功提交' in html) or ('未找到符合用户名的记录' in html):
@@ -525,7 +525,7 @@ def post_form(form_para)-> int:
     else:
         print(html[:100])
         print('===========Submit Error!===========')
-        return -1
+        return 4
 
 #end def
 
