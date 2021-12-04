@@ -613,8 +613,9 @@ def do_slot_log(log_lines, index: int, user: str, team: str, os_info, gpu_info_l
             #'找到了！'
 
     if gpu_info is None :
-        print('Can not find GPU running on process #'+str(core_PID))
-        return -1
+        #print('Can not find GPU running on process #'+str(core_PID))
+        #return -1
+        gpu_info = gpu_info_list[0]
     #end if
     
     print('%20s'%'GPU:'       , gpu_info['name'])
