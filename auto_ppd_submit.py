@@ -523,7 +523,7 @@ def post_form(form_para)-> int:
         print('===========Submit  OK ! ===========')
         return 0
     else:
-        print(html)
+        print(html[:100])
         print('===========Submit Error!===========')
         return -1
 
